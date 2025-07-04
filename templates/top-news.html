@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 
-   {% block title %}टॉप न्यूज़ - द इंक न्यूज़{% endblock %}
+{% block title %}टॉप न्यूज़ - द इंक न्यूज़{% endblock %}
 
-   {% block content %}
-   <h2>टॉप न्यूज़</h2>
-   <div class="news-articles">
-       {% for article in news_articles %}
-           <article>
-               <h3>{{ article.title }}</h3>
-               <img src="/Uploads/{{ article.image }}" alt="{{ article.title }}" style="max-width: 100%;">
-               <p>{{ article.content[:100] }}...</p>
-               <p><small>प्रकाशित: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</small></p>
-               {% if article.video %}
-                   <p><a href="{{ url_for('video_detail', id=article.id) }}">वीडियो देखें</a></p>
-               {% endif %}
-           </article>
-       {% else %}
-           <p>कोई समाचार उपलब्ध नहीं है।</p>
-       {% endfor %}
-   </div>
-   {% endblock %}
+{% block content %}
+<h2>टॉप न्यूज़</h2>
+<div class="news-articles">
+    {% for article in news_articles %}
+        <article>
+            <h3>{{ article.title | safe }}</h3>
+            <img src="{{ url_for('serve_uploaded_file', filename=article.image) }}" alt="{{ article.title | safe }}" style="max-width: 100%;">
+            <p>{{ article.content[:100] | safe }}...</p>
+            <p><small>प्रकाशित: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</small></p>
+            {% if article.video %}
+                <p><a href="{{ url_for('video') }}">सभी वीडियो देखें</a></p>
+            {% endif %}
+        </article>
+    {% else %}
+        <p>कोई समाचार उपलब्ध नहीं है।</p>
+    {% endfor %}
+</div>
+{% endblock %}
