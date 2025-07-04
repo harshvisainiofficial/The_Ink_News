@@ -72,13 +72,10 @@ def top_news():
     try:
         news_articles = News.query.filter_by(category='top-news').order_by(News.date_published.desc()).all()
         ad = get_latest_ad()
-        print(f"Fetched {len(news_articles)} articles for top-news")
-        if not news_articles:
-            print("No articles found for category 'top-news'")
         return render_template('top-news.html', news_articles=news_articles, ad=ad)
     except Exception as e:
-        print(f"Error in top-news route: {e}\n{traceback.format_exc()}")
-        return "An error occurred while loading top news.", 500
+        print(f"Error in top news route: {e}\n{traceback.format_exc()}")
+        return "An error occurred while loading top-news.", 500
 
 @app.route('/rajya-shehar')
 def rajya_shehar():
