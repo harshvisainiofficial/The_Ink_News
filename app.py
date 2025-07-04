@@ -10,6 +10,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/Harsh/Desktop/The In
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'C:/Users/Harsh/Desktop/The Ink NEWS/The Ink NEWS/SharedUploads'
 
+# Ensure SharedDB directory exists
+shared_db_dir = os.path.dirname(app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', ''))
+if not os.path.exists(shared_db_dir):
+    try:
+        os.makedirs(shared_db_dir)
+        print(f"Created directory: {shared_db_dir}")
+    except Exception as e:
+        print(f"Error creating directory {shared_db_dir}: {e}")
+
 db = SQLAlchemy(app)
 
 # Models
@@ -63,6 +72,9 @@ def top_news():
     try:
         news_articles = News.query.filter_by(category='top-news').order_by(News.date_published.desc()).all()
         ad = get_latest_ad()
+        print(f"Fetched {len(news_articles)} articles for top-news")
+        if not news_articles:
+            print("No articles found for category 'top-news'")
         return render_template('top-news.html', news_articles=news_articles, ad=ad)
     except Exception as e:
         print(f"Error in top-news route: {e}\n{traceback.format_exc()}")
@@ -185,6 +197,20 @@ def epaper():
         return "An error occurred while loading epaper.", 500
 
 if __name__ == '__main__':
-    print("Database path:", app.config['SQLALCHEMY_DATABASE_URI'])
-    print("Database file exists:", os.path.exists('C:/Users/Harsh/Desktop/The Ink NEWS/SharedDB/ink.db'))
-    app.run(debug=True)
+    with app.app_context():
+        try:
+            # Check if database file exists, create tables if necessary
+            db_path = app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
+            if not os.path.exists(db_path):
+                print(f"Database file {db_path} not found, creating new database.")
+                db.create_all()
+                print("Database created successfully.")
+            else:
+                print(f"Database file {db_path} found.")
+                db.create_all()  # Ensure tables are created
+        except Exception as e:
+            print(f"Error initializing database: {e}\n{traceback.format_exc()}")
+            raise
+        print("Database path:", app.config['SQLALCHEMY_DATABASE_URI'])
+        print("Database file exists:", os.path.exists(db_path))
+    app.run(debug=True, port=5000)
