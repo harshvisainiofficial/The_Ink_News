@@ -1,74 +1,22 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>द इंक न्यूज़</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <header>
-        <div class="top-ad">
-            <p>यहां विज्ञापन दिखाएं</p>
-        </div>
-        <div class="header-main">
-            <div class="logo">
-                <h1>द इंक न्यूज़</h1>
-            </div>
-            <nav class="top-nav">
-                <ul>
-                    <li><a href="index.html">होम</a></li>
-                    <li><a href="video.html">वीडियो</a></li>
-                    <li><a href="search.html">खोज</a></li>
-                    <li><a href="webstory.html">वेबस्टोरी</a></li>
-                    <li><a href="epaper.html">ई-पेपर</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+{% extends "base.html" %}
 
-    <div class="main-container">
-        <aside class="left-nav">
-            <ul>
-                <li><a href="live-news.html">लाइव न्यूज़</a></li>
-                <li><a href="top-news.html">टॉप न्यूज़</a></li>
-                <li><a href="rajya-shehar.html">राज्य शहर</a></li>
-                <li><a href="the-ink-khas.html">द इंक खास</a></li>
-                <li><a href="cricket.html">क्रिकेट</a></li>
-                <li><a href="sports.html">खेल</a></li>
-                <li><a href="business.html">व्यापार</a></li>
-                <li><a href="jiveen-mantra.html">जीवन मंत्र</a></li>
-                <li><a href="rashifal.html">राशिफल</a></li>
-            </ul>
-        </aside>
+{% block title %}द इंक न्यूज़{% endblock %}
 
-        <main class="content">
-            <h2>मुख्य समाचार</h2>
-            <div class="news-articles">
-                <!-- News articles will be dynamically added here -->
-                <article>
-                    <h3>समाचार शीर्षक 1</h3>
-                    <p>यह समाचार का संक्षिप्त विवरण है...</p>
-                </article>
-                <article>
-                    <h3>समाचार शीर्षक 2</h3>
-                    <p>यह समाचार का संक्षिप्त विवरण है...</p>
-                </article>
-                 <article>
-                    <h3>समाचार शीर्षक 3</h3>
-                    <p>यह समाचार का संक्षिप्त विवरण है...</p>
-                </article>
-            </div>
-        </main>
-
-        <aside class="right-ad">
-            <p>यहां विज्ञापन दिखाएं</p>
-        </aside>
-    </div>
-
-    <footer>
-        <p>&copy; 2024 द इंक न्यूज़. सर्वाधिकार सुरक्षित।</p>
-    </footer>
-
-</body>
-</html> 
+{% block content %}
+<h2>मुख्य समाचार</h2>
+<div class="news-articles">
+    {% for article in news_articles %}
+        <article>
+            <h3>{{ article.title }}</h3>
+            <img src="/Uploads/{{ article.image }}" alt="{{ article.title }}" style="max-width: 100%;">
+            <p>{{ article.content[:100] }}...</p>
+            <p><small>प्रकाशित: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</small></p>
+            {% if article.video %}
+                <p><a href="{{ url_for('video') }}">वीडियो देखें</a></p>
+            {% endif %}
+        </article>
+    {% else %}
+        <p>कोई समाचार उपलब्ध नहीं है।</p>
+    {% endfor %}
+</div>
+{% endblock %}

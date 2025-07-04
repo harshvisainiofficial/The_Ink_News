@@ -1,60 +1,8 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ई-पेपर - द इंक न्यूज़</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <header>
-        <div class="top-ad">
-            <p>यहां विज्ञापन दिखाएं</p>
-        </div>
-        <div class="header-main">
-            <div class="logo">
-                <h1>द इंक न्यूज़</h1>
-            </div>
-            <nav class="top-nav">
-                <ul>
-                    <li><a href="index.html">होम</a></li>
-                    <li><a href="video.html">वीडियो</a></li>
-                    <li><a href="search.html">खोज</a></li>
-                    <li><a href="webstory.html">वेबस्टोरी</a></li>
-                    <li><a href="epaper.html">ई-पेपर</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+{% extends "base.html" %}
 
-    <div class="main-container">
-        <aside class="left-nav">
-            <ul>
-                <li><a href="live-news.html">लाइव न्यूज़</a></li>
-                <li><a href="top-news.html">टॉप न्यूज़</a></li>
-                <li><a href="rajya-shehar.html">राज्य शहर</a></li>
-                <li><a href="the-ink-khas.html">द इंक खास</a></li>
-                <li><a href="cricket.html">क्रिकेट</a></li>
-                <li><a href="sports.html">खेल</a></li>
-                <li><a href="business.html">व्यापार</a></li>
-                <li><a href="jiveen-mantra.html">जीवन मंत्र</a></li>
-                <li><a href="rashifal.html">राशिफल</a></li>
-            </ul>
-        </aside>
+{% block title %}ई-पेपर - द इंक न्यूज़{% endblock %}
 
-        <main class="content">
-            <h2>ई-पेपर</h2>
-            <p>इस पृष्ठ की सामग्री जल्द ही आ रही है।</p>
-        </main>
-
-        <aside class="right-ad">
-            <p>यहां विज्ञापन दिखाएं</p>
-        </aside>
-    </div>
-
-    <footer>
-        <p>&copy; 2024 द इंक न्यूज़. सर्वाधिकार सुरक्षित।</p>
-    </footer>
-
-</body>
-</html> 
+{% block content %}
+<h2>ई-पेपर</h2>
+<p>इस पृष्ठ की सामग्री जल्द ही आ रही है।</p>
+{% endblock %}

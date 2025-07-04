@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}द इंक न्यूज़{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="top-ad">
+            {% if ad and ad.top_banner %}
+                <img src="/Uploads/{{ ad.top_banner }}" alt="Top Banner Ad" style="max-width: 100%;">
+            {% else %}
+                <p>यहां विज्ञापन दिखाएं</p>
+            {% endif %}
+        </div>
+        <div class="header-main">
+            <div class="logo">
+                <h1>द इंक न्यूज़</h1>
+            </div>
+            <nav class="top-nav">
+                <ul>
+                    <li><a href="{{ url_for('index') }}">होम</a></li>
+                    <li><a href="{{ url_for('video') }}">वीडियो</a></li>
+                    <li><a href="{{ url_for('search') }}">खोज</a></li>
+                    <li><a href="{{ url_for('webstory') }}">वेबस्टोरी</a></li>
+                    <li><a href="{{ url_for('epaper') }}">ई-पेपर</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="left-nav">
+            <ul>
+                <li><a href="{{ url_for('live_news') }}">लाइव न्यूज़</a></li>
+                <li><a href="{{ url_for('top_news') }}">टॉप न्यूज़</a></li>
+                <li><a href="{{ url_for('rajya_shehar') }}">राज्य शहर</a></li>
+                <li><a href="{{ url_for('the_ink_khas') }}">द इंक खास</a></li>
+                <li><a href="{{ url_for('cricket') }}">क्रिकेट</a></li>
+                <li><a href="{{ url_for('sports') }}">खेल</a></li>
+                <li><a href="{{ url_for('business') }}">व्यापार</a></li>
+                <li><a href="{{ url_for('jiveen_mantra') }}">जीवन मंत्र</a></li>
+                <li><a href="{{ url_for('rashifal') }}">राशिफल</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <aside class="right-ad">
+            {% if ad and ad.right_sidebar %}
+                <img src="/Uploads/{{ ad.right_sidebar }}" alt="Right Sidebar Ad" style="max-width: 100%;">
+            {% else %}
+                <p>यहां विज्ञापन दिखाएं</p>
+            {% endif %}
+        </aside>
+    </div>
+
+    <footer>
+        <p>© 2024 द इंक न्यूज़. सर्वाधिकार सुरक्षित।</p>
+    </footer>
+</body>
+</html>
