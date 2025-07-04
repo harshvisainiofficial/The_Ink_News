@@ -5,11 +5,10 @@ import os
 import traceback
 
 app = Flask(__name__)
-# Use absolute path for database and uploads
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'instance', 'ink.db')
+# Use shared database and uploads folder
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/Harsh/Desktop/The Ink NEWS/The Ink NEWS/SharedDB/ink.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'Uploads')
+app.config['UPLOAD_FOLDER'] = 'C:/Users/Harsh/Desktop/The Ink NEWS/The Ink NEWS/SharedUploads'
 
 db = SQLAlchemy(app)
 
@@ -186,7 +185,6 @@ def epaper():
         return "An error occurred while loading epaper.", 500
 
 if __name__ == '__main__':
-    # Debug database path
     print("Database path:", app.config['SQLALCHEMY_DATABASE_URI'])
-    print("Database file exists:", os.path.exists(os.path.join(basedir, 'instance', 'ink.db')))
+    print("Database file exists:", os.path.exists('C:/Users/Harsh/Desktop/The Ink NEWS/SharedDB/ink.db'))
     app.run(debug=True)
