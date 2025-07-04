@@ -4,17 +4,15 @@
 
 {% block content %}
 <h2>वीडियो</h2>
-<div class="video-gallery">
+<div class="video-articles">
     {% for article in video_articles %}
-        <article>
-            <h3>{{ article.title }}</h3>
-            <img src="/Uploads/{{ article.image }}" alt="{{ article.title }}" style="max-width: 100%;">
-            <video width="100%" controls>
-                <source src="/Uploads/{{ article.video }}" type="video/mp4">
+        <div class="video-item">
+            <h3>{{ article.title | safe }}</h3>
+            <video width="640" height="360" controls>
+                <source src="{{ url_for('serve_uploaded_file', filename=article.video) }}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
-            <p><small>प्रकाशित: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</small></p>
-        </article>
+        </div>
     {% else %}
         <p>कोई वीडियो उपलब्ध नहीं है।</p>
     {% endfor %}
