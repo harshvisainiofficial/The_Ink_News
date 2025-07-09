@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ news.title }} - द इंक न्यूज़</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="news-detail" style="max-width: 800px; margin: 20px auto; padding: 20px;">
+        <h1>{{ news.title }}</h1>
+        <div class="news-content">
+            {% if blocks %}
+                {% for block in blocks %}
+                    {% if block.block_type == 'text' %}
+                        <div class="content-block text-block" style="margin-bottom: 15px;">
+                            {{ block.content|safe }}
+                        </div>
+                    {% elif block.block_type == 'image' and block.content|isfile %}
+                        <div class="content-block image-block" style="margin-bottom: 15px;">
+                            <img src="{{ url_for('serve_uploads', filename=block.content|basename) }}" alt="News Image" style="max-width: 100%; height: auto;">
+                        </div>
+                    {% elif block.block_type == 'video' and block.content|isfile %}
+                        <div class="content-block video-block" style="margin-bottom: 15px;">
+                            <video controls style="max-width: 100%; height: auto;">
+                                <source src="{{ url_for('serve_uploads', filename=block.content|basename) }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    {% else %}
+                        <div class="content-block error-block" style="color: red;">
+                            [Error: Invalid or missing content for block type "{{ block.block_type }}"]
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p style="color: red;">कोई सामग्री ब्लॉक उपलब्ध नहीं है।</p>
+            {% endif %}
+        </div>
+        <div class="news-footer" style="margin-top: 20px;">
+            {% if news.location or news.location_text %}
+                <p><strong>स्थान:</strong> {{ news.location_text if news.location_text else news.location }}</p>
+            {% endif %}
+            <p><strong>प्रकाशित:</strong> {{ news.date_published.strftime('%d %b %Y, %I:%M %p') }}</p>
+        </div>
+    </div>
+</body>
+</html>

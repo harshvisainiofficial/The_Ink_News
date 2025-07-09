@@ -108,6 +108,10 @@ header {
     margin-top: 0;
 }
 
+.content h3 {
+    font-weight: bold;
+}
+
 .news-articles article {
     margin-bottom: 20px;
     padding-bottom: 20px;
@@ -122,6 +126,11 @@ header {
     margin: 0 0 10px 0;
 }
 
+.preview-image, .news-image {
+    max-width: 100%;
+    margin: 10px 0;
+}
+
 /* Right Ad */
 .right-ad {
     flex: 1;
@@ -132,6 +141,55 @@ header {
     height: fit-content;
 }
 
+/* Back Button */
+.back-btn-container {
+    margin-bottom: 20px;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+}
+
+.back-btn:hover {
+    background: #5a6268;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 100;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
 /* Footer */
 footer {
     background-color: #333;
@@ -139,4 +197,4 @@ footer {
     text-align: center;
     padding: 20px;
     margin-top: 20px;
-} 
+}

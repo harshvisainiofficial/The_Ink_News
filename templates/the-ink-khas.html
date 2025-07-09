@@ -7,12 +7,21 @@
 <div class="news-articles">
     {% for article in news_articles %}
         <article>
-            <h3>{{ article.title }}</h3>
-            <img src="/Uploads/{{ article.image }}" alt="{{ article.title }}" style="max-width: 100%;">
-            <p>{{ article.content[:100] }}...</p>
-            <p><small>प्रकाशित: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</small></p>
-            {% if article.video %}
-                <p><a href="{{ url_for('video') }}">वीडियो देखें</a></p>
+            <h3><a href="{{ url_for('news_detail', id=article.id) }}">{{ article.title | safe }}</a></h3>
+            <p><strong>शहर:</strong> {{ article.location }}</p>
+            {% if article.location_text %}
+                <p><strong>स्थान:</strong> {{ article.location_text }}</p>
+            {% endif %}
+            <p><strong>तारीख:</strong> {{ article.date_published.strftime('%Y-%m-%d') }}</p>
+            {% set first_image = article.content_blocks|selectattr('block_type', 'equalto', 'image')|selectattr('content')|first %}
+            {% if first_image and first_image.content|isfile %}
+                <a href="{{ url_for('news_detail', id=article.id) }}">
+                    <img src="{{ url_for('serve_uploads', filename=first_image.content|basename) }}" alt="{{ article.title | safe }}" class="preview-image">
+                </a>
+            {% endif %}
+            {% set first_text = article.content_blocks|selectattr('block_type', 'equalto', 'text')|selectattr('content')|first %}
+            {% if first_text %}
+                <p>{{ first_text.content|truncate(100) | safe }} <a href="{{ url_for('news_detail', id=article.id) }}">और पढ़ें...</a></p>
             {% endif %}
         </article>
     {% else %}
