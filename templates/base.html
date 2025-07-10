@@ -17,8 +17,9 @@
             {% endif %}
         </div>
         <div class="header-main">
-            <div class="logo">
-                <h1>द इंक न्यूज़</h1>
+            <div class="logo" style="display: flex; align-items: center;">
+                <img src="{{ url_for('serve_uploads', filename='logo.png') }}" alt="द इंक न्यूज़ लोगो" style="height: 40px; margin-left: 10px;">
+                <h1 style="margin: 0;">द इंक न्यूज़</h1>
             </div>
             <nav class="top-nav">
                 <ul>
