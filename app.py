@@ -72,6 +72,7 @@ def category(category):
 @app.route('/video')
 def video():
     try:
+        # Query news articles that have at least one video block
         news_articles = News.query.filter(
             News.head_approved == True,
             News.id.in_(db.session.query(ContentBlock.news_id).filter(ContentBlock.block_type == 'video'))
@@ -122,24 +123,18 @@ def live_news():
 def news_detail(id):
     try:
         news = News.query.get_or_404(id)
-        print(f"News ID {id}: title={news.title}, head_approved={news.head_approved}, location={news.location}, location_text={news.location_text}, date_published={news.date_published}")
         if not news.head_approved:
-            print(f"News ID {id} not approved, returning 404")
             return "News article not found or not approved.", 404
         blocks = ContentBlock.query.filter_by(news_id=news.id).order_by(ContentBlock.order_index).all()
-        print(f"News ID {id}: found {len(blocks)} content blocks")
-        for block in blocks:
-            print(f"Block ID {block.id}: type={block.block_type}, content={block.content}, order_index={block.order_index}")
-        return render_template('news_detail.html', news=news, blocks=blocks)
+        ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
+        return render_template('news_detail.html', news=news, blocks=blocks, ad=ad, selected_category=news.category)
     except Exception as e:
-        print(f"Error querying news ID {id}: {e}")
+        print(f"Error querying news: {e}")
         return "Error loading news article.", 500
 
 @app.route('/Uploads/<path:filename>')
 def serve_uploads(filename):
     try:
-        full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        print(f"Serving file: {full_path}")
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     except Exception as e:
         print(f"Error serving file {filename}: {e}")
