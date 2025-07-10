@@ -37,7 +37,17 @@
             <ul>
                 <li><a href="{{ url_for('live_news') }}">लाइव न्यूज़</a></li>
                 <li><a href="{{ url_for('category', category='top-news') }}">टॉप न्यूज़</a></li>
-                <li><a href="{{ url_for('category', category='rajya-shehar') }}">राज्य शहर</a></li>
+                <li>
+                    <div style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
+                        <a href="{{ url_for('rajya_shehar') }}" style="flex: 1;">राज्य शहर</a>
+                        <select onchange="if(this.value) window.location.href='{{ url_for('rajya_shehar') }}?city=' + encodeURIComponent(this.value)" style="margin-left: 10px; padding: 5px; font-size: 14px; border: 1px solid #eee; border-radius: 4px; width: 120px;">
+                            <option value="">सभी शहर</option>
+                            {% for city in cities %}
+                                <option value="{{ city }}" {% if city == selected_city %}selected{% endif %}>{{ city }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </li>
                 <li><a href="{{ url_for('category', category='the-ink-khas') }}">द इंक खास</a></li>
                 <li><a href="{{ url_for('category', category='cricket') }}">क्रिकेट</a></li>
                 <li><a href="{{ url_for('category', category='sports') }}">खेल</a></li>
