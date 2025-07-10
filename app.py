@@ -25,7 +25,7 @@ def basename(path):
 app.jinja_env.filters['isfile'] = isfile
 app.jinja_env.filters['basename'] = basename
 
-# Models (unchanged as per your request)
+# Models (unchanged)
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100), nullable=False)
@@ -42,8 +42,8 @@ class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     category = db.Column(db.String(100), nullable=False)
-    location = db.Column(db.String(100), nullable=False)  # Renamed to City in form
-    location_text = db.Column(db.String(200), nullable=True)  # Text-based Location
+    location = db.Column(db.String(100), nullable=False)
+    location_text = db.Column(db.String(200), nullable=True)
     date_published = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     head_approved = db.Column(db.Boolean, nullable=False, default=False)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=True)
@@ -52,8 +52,8 @@ class News(db.Model):
 class ContentBlock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=False)
-    block_type = db.Column(db.String(20), nullable=False)  # subheading, text, image, video, advertisement
-    content = db.Column(db.Text, nullable=True)  # Text or file path
+    block_type = db.Column(db.String(20), nullable=False)
+    content = db.Column(db.Text, nullable=True)
     order_index = db.Column(db.Integer, nullable=False)
     news = db.relationship('News', backref='content_blocks')
 
@@ -78,15 +78,12 @@ def index():
 @app.route('/rajya-shehar')
 def rajya_shehar():
     try:
-        # Get the selected city from query parameter and normalize it
         selected_city = request.args.get('city', '').strip()
         query = News.query.filter_by(head_approved=True)
         if selected_city:
             query = query.filter(db.func.lower(db.func.trim(News.location)) == db.func.lower(selected_city))
         news_articles = query.order_by(News.date_published.desc()).all()
-        # Hardcoded list of cities for the dropdown
         cities = ['Bagar', 'Khetri', 'Bissau', 'Buhana', 'Chirawa', 'Gudhagorji', 'Jhunjhunu', 'Mandawa', 'Mukandgarh', 'Nawalgarh', 'Pilani', 'Surajgarh', 'Udaipurwati']
-        # Debug: Print all news with locations and filtered results
         all_news = News.query.filter_by(head_approved=True).all()
         all_locations = db.session.query(News.location).filter(
             News.head_approved == True,
@@ -119,7 +116,6 @@ def rajya_shehar():
 @app.route('/category/<category>')
 def category(category):
     try:
-        # Skip rajya-shehar as it's handled by a separate route
         if category == 'rajya-shehar':
             return rajya_shehar()
         selected_city = request.args.get('city', '').strip()
@@ -127,7 +123,6 @@ def category(category):
         if selected_city:
             query = query.filter(db.func.lower(db.func.trim(News.location)) == db.func.lower(selected_city))
         news_articles = query.order_by(News.date_published.desc()).all()
-        # Hardcoded list of cities for the dropdown (used only for rajya-shehar)
         cities = ['Bagar', 'Khetri', 'Bissau', 'Buhana', 'Chirawa', 'Gudhagorji', 'Jhunjhunu', 'Mandawa', 'Mukandgarh', 'Nawalgarh', 'Pilani', 'Surajgarh', 'Udaipurwati']
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
         return render_template('index.html', 
@@ -161,11 +156,30 @@ def video():
 @app.route('/search')
 def search():
     try:
+        query = request.args.get('q', '').strip()
+        news_articles = []
+        if query:
+            # Search in title and content blocks (text and subheading)
+            news_articles = News.query.filter(
+                News.head_approved == True,
+                db.or_(
+                    News.title.ilike(f'%{query}%'),
+                    News.id.in_(
+                        db.session.query(ContentBlock.news_id).filter(
+                            ContentBlock.block_type.in_(['text', 'subheading']),
+                            ContentBlock.content.ilike(f'%{query}%')
+                        )
+                    )
+                )
+            ).order_by(News.date_published.desc()).all()
+            print(f"Search Query: '{query}', Found Articles: {len(news_articles)}")
+            for article in news_articles:
+                print(f" - ID: {article.id}, Title: {article.title}, Location Text: '{article.location_text}', Category: {article.category}")
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
-        return render_template('search.html', ad=ad)
+        return render_template('search.html', news_articles=news_articles, ad=ad, query=query)
     except Exception as e:
-        print(f"Error querying search page: {e}")
-        return render_template('search.html', ad=None)
+        print(f"Error querying search: {e}")
+        return render_template('search.html', news_articles=[], ad=None, query=query)
 
 @app.route('/webstory')
 def webstory():

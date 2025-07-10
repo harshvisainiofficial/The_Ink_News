@@ -4,5 +4,43 @@
 
 {% block content %}
 <h2>खोज</h2>
-<p>इस पृष्ठ की सामग्री जल्द ही आ रही है।</p>
+<div class="search-bar">
+    <form action="{{ url_for('search') }}" method="get">
+        <input type="text" name="q" value="{{ query | safe }}" placeholder="समाचार खोजें..." style="padding: 8px; width: 300px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px;">
+        <button type="submit" style="padding: 8px 16px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; background-color: #f8f8f8; cursor: pointer;">खोजें</button>
+    </form>
+</div>
+<div class="news-articles">
+    {% if news_articles %}
+        {% for article in news_articles %}
+            <article>
+                <h3 style="font-size: 1.8em; font-weight: bold;">{{ article.title | safe }}</h3>
+                <div class="content-blocks">
+                    {% for block in article.content_blocks|sort(attribute='order_index') %}
+                        {% if block.block_type == 'subheading' %}
+                            <h4 style="font-weight: bold;">{{ block.content | safe }}</h4>
+                        {% elif block.block_type == 'text' %}
+                            <p>{{ block.content | safe }}</p>
+                        {% elif block.block_type == 'image' and block.content|isfile %}
+                            <img src="{{ url_for('serve_uploads', filename=block.content|basename) }}" alt="News Image" style="max-width: 100%; margin: 10px 0;">
+                        {% elif block.block_type == 'video' and block.content|isfile %}
+                            <video controls style="max-width: 100%; margin: 10px 0;">
+                                <source src="{{ url_for('serve_uploads', filename=block.content|basename) }}" type="video/mp4">
+                                आपका ब्राउज़र वीडियो टैग का समर्थन नहीं करता।
+                            </video>
+                        {% elif block.block_type == 'advertisement' and block.content|isfile %}
+                            <img src="{{ url_for('serve_uploads', filename=block.content|basename) }}" alt="Advertisement" style="max-width: 100%; margin: 10px 0;">
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% if article.location_text %}
+                    <p style="color: #666; font-size: 0.9em;"><strong>स्थान:</strong> {{ article.location_text }}</p>
+                {% endif %}
+                <p style="color: #666; font-size: 0.9em;"><strong>तारीख और समय:</strong> {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>कोई समाचार नहीं मिला{% if query %} "{{ query }}" के लिए{% endif %}।</p>
+    {% endif %}
+</div>
 {% endblock %}
