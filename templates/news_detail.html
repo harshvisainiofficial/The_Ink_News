@@ -4,9 +4,7 @@
 
 {% block content %}
 <div class="news-detail">
-    <h1>{{ news.title | safe }}</h1>
-    <p style="color: #666; font-size: 0.9em;"><strong>शहर:</strong> {{ news.location }}</p>
-    <p style="color: #666; font-size: 0.9em;"><strong>तारीख और समय:</strong> {{ news.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
+    <h1 style="font-size: 2em; font-weight: bold;">{{ news.title | safe }}</h1>
     <div class="content-blocks">
         {% for block in blocks %}
             {% if block.block_type == 'subheading' %}
@@ -25,5 +23,9 @@
             {% endif %}
         {% endfor %}
     </div>
+    {% if news.location_text %}
+        <p style="color: #666; font-size: 0.9em;"><strong>स्थान:</strong> {{ news.location_text }}</p>
+    {% endif %}
+    <p style="color: #666; font-size: 0.9em;"><strong>तारीख और समय:</strong> {{ news.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
 </div>
 {% endblock %}
