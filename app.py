@@ -229,19 +229,19 @@ def serve_uploads(filename):
         print(f"Error serving file {filename}: {e}")
         return "File not found.", 404
 
-if __name__ == '__main__':
-    with app.app_context():
-        try:
-            rashifal_news = News.query.filter_by(category='rashifal').all()
-            for news in rashifal_news:
-                news.category = 'top-news'
-                print(f"Updated news ID {news.id} from rashifal to top-news")
-            city_news = News.query.filter(News.location.in_(['Pilani', 'Chirawa'])).all()
-            for news in city_news:
-                news.location = ''
-                print(f"Updated news ID {news.id} location from {news.location} to empty")
-            db.session.commit()
-        except Exception as e:
-            print(f"Error updating database: {e}")
-            db.session.rollback()
-    app.run(debug=True, port=5000)
+# if __name__ == '__main__':
+#     with app.app_context():
+#         try:
+#             rashifal_news = News.query.filter_by(category='rashifal').all()
+#             for news in rashifal_news:
+#                 news.category = 'top-news'
+#                 print(f"Updated news ID {news.id} from rashifal to top-news")
+#             city_news = News.query.filter(News.location.in_(['Pilani', 'Chirawa'])).all()
+#             for news in city_news:
+#                 news.location = ''
+#                 print(f"Updated news ID {news.id} location from {news.location} to empty")
+#             db.session.commit()
+#         except Exception as e:
+#             print(f"Error updating database: {e}")
+#             db.session.rollback()
+#     app.run(debug=True, port=5000)
