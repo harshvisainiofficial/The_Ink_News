@@ -3,3 +3,4 @@ flask-sqlalchemy==3.0.5
 pytest==7.4.0
 flake8==6.0.0
 gunicorn
+psycopg2-binary
