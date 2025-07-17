@@ -7,22 +7,30 @@
 <div class="news-articles">
     {% for article in news_articles %}
         <article>
-            <h3><a href="{{ url_for('news_detail', id=article.id) }}">{{ article.title | safe }}</a></h3>
+            <h3 style="font-size: 1.8em; font-weight: bold;">{{ article.title | safe }}</h3>
             <p><strong>शहर:</strong> {{ article.location }}</p>
             {% if article.location_text %}
                 <p><strong>स्थान:</strong> {{ article.location_text }}</p>
             {% endif %}
-            <p><strong>तारीख:</strong> {{ article.date_published.strftime('%Y-%m-%d') }}</p>
-            {% set first_image = article.content_blocks|selectattr('block_type', 'equalto', 'image')|selectattr('content')|first %}
-            {% if first_image and first_image.content %}
-                <a href="{{ url_for('news_detail', id=article.id) }}">
-                    <img src="{{ first_image.content }}?f_auto,q_auto" alt="{{ article.title | safe }}" class="preview-image" style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                </a>
-            {% endif %}
-            {% set first_text = article.content_blocks|selectattr('block_type', 'equalto', 'text')|selectattr('content')|first %}
-            {% if first_text %}
-                <p>{{ first_text.content|truncate(100) | safe }} <a href="{{ url_for('news_detail', id=article.id) }}">और पढ़ें...</a></p>
-            {% endif %}
+            <p><strong>तारीख:</strong> {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
+            <div class="content-blocks">
+                {% for block in article.content_blocks|sort(attribute='order_index') %}
+                    {% if block.block_type == 'subheading' %}
+                        <h4 style="font-weight: bold;">{{ block.content | safe }}</h4>
+                    {% elif block.block_type == 'text' %}
+                        <p>{{ block.content | safe }}</p>
+                    {% elif block.block_type == 'image' and block.content %}
+                        <img src="{{ block.content }}?f_auto,q_auto" alt="News Image" style="max-width: 100%; margin: 10px 0;" loading="lazy">
+                    {% elif block.block_type == 'video' and block.content %}
+                        <video controls style="max-width: 100%; margin: 10px 0;" loading="lazy">
+                            <source src="{{ block.content }}?f_auto,q_auto" type="video/mp4">
+                            आपका ब्राउज़र वीडियो टैग का समर्थन नहीं करता।
+                        </video>
+                    {% elif block.block_type == 'advertisement' and block.content %}
+                        <img src="{{ block.content }}?f_auto,q_auto" alt="Advertisement" style="max-width: 100%; margin: 10px 0;" loading="lazy">
+                    {% endif %}
+                {% endfor %}
+            </div>
         </article>
     {% else %}
         <p>कोई समाचार उपलब्ध नहीं है।</p>
