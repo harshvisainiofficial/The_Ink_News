@@ -3,75 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}द इंक न्यूज़{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
     <header>
-        <div class="top-ad">
-            {% if ad and ad.top_banner %}
-                <img src="{{ ad.top_banner }}" alt="Top Banner Ad" style="max-width: 100%;">
-            {% else %}
-                <p>यहां विज्ञापन दिखाएं</p>
-            {% endif %}
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <img src="https://res.cloudinary.com/dmvfrdzrl/image/upload/v1752772701/SharedUploads/ink-news-logo.png?f_auto,q_auto" alt="The Ink NEWS Logo" style="max-width: 150px; height: auto;">
+            </a>
         </div>
-        <div class="header-main">
-            <div class="logo" style="display: flex; align-items: center;">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="द इंक न्यूज़ लोगो" style="height: 40px; margin-left: 10px;">
-                <h1 style="margin: 0;">द इंक न्यूज़</h1>
-            </div>
-            <nav class="top-nav">
-                <ul>
-                    <li><a href="{{ url_for('index') }}" {% if not selected_category %}class="active"{% endif %}>होम</a></li>
-                    <li><a href="{{ url_for('video') }}">वीडियो</a></li>
-                    <li><a href="{{ url_for('search') }}">खोज</a></li>
-                    <li><a href="{{ url_for('epaper') }}">ई-पेपर</a></li>
-                </ul>
-            </nav>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">होम</a></li>
+                <li><a href="{{ url_for('rajya_shehar') }}">राज्य शहर</a></li>
+                <li><a href="{{ url_for('category', category='business') }}">व्यापार</a></li>
+                <li><a href="{{ url_for('category', category='cricket') }}">क्रिकेट</a></li>
+                <li><a href="{{ url_for('category', category='jiveen-mantra') }}">जीवन मंत्र</a></li>
+                <li><a href="{{ url_for('category', category='sports') }}">खेल</a></li>
+                <li><a href="{{ url_for('category', category='the-ink-khas') }}">द इंक खास</a></li>
+                <li><a href="{{ url_for('category', category='top-news') }}">टॉप न्यूज़</a></li>
+                <li><a href="{{ url_for('video') }}">वीडियो</a></li>
+                <li><a href="{{ url_for('webstory') }}">वेबस्टोरी</a></li>
+                <li><a href="{{ url_for('epaper') }}">ई-पेपर</a></li>
+                <li><a href="{{ url_for('live_news') }}">लाइव न्यूज़</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <form action="{{ url_for('search') }}" method="get">
+                <input type="text" name="q" placeholder="खोजें...">
+                <button type="submit">खोज</button>
+            </form>
         </div>
     </header>
-
-    <div class="main-container">
-        <aside class="left-nav">
-            <ul>
-                <li><a href="{{ url_for('live_news') }}">लाइव न्यूज़</a></li>
-                <li><a href="{{ url_for('category', category='top-news') }}">टॉप न्यूज़</a></li>
-                <li>
-                    <div style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
-                        <a href="{{ url_for('rajya_shehar') }}" style="flex: 1;">राज्य शहर</a>
-                        <select onchange="if(this.value) window.location.href='{{ url_for('rajya_shehar') }}?city=' + encodeURIComponent(this.value)" style="margin-left: 10px; padding: 5px; font-size: 14px; border: 1px solid #eee; border-radius: 4px; width: 120px;">
-                            <option value="">सभी शहर</option>
-                            {% for city in cities %}
-                                <option value="{{ city }}" {% if city == selected_city %}selected{% endif %}>{{ city }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </li>
-                <li><a href="{{ url_for('category', category='the-ink-khas') }}">द इंक खास</a></li>
-                <li><a href="{{ url_for('category', category='cricket') }}">क्रिकेट</a></li>
-                <li><a href="{{ url_for('category', category='sports') }}">खेल</a></li>
-                <li><a href="{{ url_for('category', category='jiveen-mantra') }}">जीवन मंत्र</a></li>
-                <li><a href="{{ url_for('category', category='business') }}">व्यापार</a></li>
-            </ul>
-        </aside>
-
-        <main class="content">
-            {% block content %}
-            {% endblock %}
-        </main>
-
-        <aside class="right-ad">
-            {% if ad and ad.right_sidebar %}
-                <img src="{{ ad.right_sidebar }}" alt="Right Sidebar Ad" style="max-width: 100%;">
-            {% else %}
-                <p>यहां विज्ञापन दिखाएं</p>
-            {% endif %}
-        </aside>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    {% set ad = ad if ad else Advertisement.query.order_by(Advertisement.updated_at.desc()).first() %}
+    {% if ad and ad.top_banner %}
+    <div class="ad-banner">
+        <img src="{{ ad.top_banner }}?f_auto,q_auto" alt="Top Banner Ad" style="max-width: 100%; height: auto;">
     </div>
-
+    {% endif %}
+    {% if ad and ad.right_sidebar %}
+    <div class="ad-sidebar">
+        <img src="{{ ad.right_sidebar }}?f_auto,q_auto" alt="Sidebar Ad" style="max-width: 100%; height: auto;">
+    </div>
+    {% endif %}
     <footer>
-        <p>© 2025 द इंक न्यूज़. सर्वाधिकार सुरक्षित।</p>
+        <p>© 2025 The Ink NEWS. सर्वाधिकार सुरक्षित।</p>
     </footer>
 </body>
 </html>
