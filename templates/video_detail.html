@@ -1,18 +1,31 @@
 {% extends "base.html" %}
 
-   {% block title %}{{ article.title }} - वीडियो - द इंक न्यूज़{% endblock %}
+{% block title %}{{ news.title | safe }} - वीडियो - द इंक न्यूज़{% endblock %}
 
-   {% block content %}
-   <h2>{{ article.title }}</h2>
-   <div class="video-gallery">
-       <article>
-           <img src="/Uploads/{{ article.image }}" alt="{{ article.title }}" style="max-width: 100%;">
-           <video width="100%" controls>
-               <source src="/Uploads/{{ article.video }}" type="video/mp4">
-               Your browser does not support the video tag.
-           </video>
-           <p>{{ article.content }}</p>
-           <p><small>प्रकाशित: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</small></p>
-       </article>
-   </div>
-   {% endblock %}
+{% block content %}
+<div class="container">
+    <a href="{{ url_for('video') }}" class="back-btn" style="display: inline-block; padding: 10px 20px; background: #6c757d; color: white; border-radius: 5px; text-decoration: none;">← वापस वीडियो पर</a>
+    <h2>{{ news.title | safe }}</h2>
+    <div class="news-meta">
+        <p>श्रेणी: {{ news.category.replace('-', ' ').title() }} | स्थान: {{ news.location }} {% if news.location_text %} ({{ news.location_text }}) {% endif %} | प्रकाशित: {{ news.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
+    </div>
+    <div class="video-gallery">
+        {% for block in blocks|sort(attribute='order_index') %}
+            {% if block.block_type == 'subheading' %}
+                <h4 style="font-weight: bold;">{{ block.content | safe }}</h4>
+            {% elif block.block_type == 'text' %}
+                <p>{{ block.content | safe }}</p>
+            {% elif block.block_type == 'image' and block.content %}
+                <img src="{{ block.content }}?f_auto,q_auto" alt="News Image" style="max-width: 100%; margin: 10px 0;" loading="lazy">
+            {% elif block.block_type == 'video' and block.content %}
+                <video width="100%" controls loading="lazy">
+                    <source src="{{ block.content }}?f_auto,q_auto" type="video/mp4">
+                    आपका ब्राउज़र वीडियो टैग का समर्थन नहीं करता।
+                </video>
+            {% elif block.block_type == 'advertisement' and block.content %}
+                <img src="{{ block.content }}?f_auto,q_auto" alt="Advertisement" style="max-width: 100%; margin: 10px 0;" loading="lazy">
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

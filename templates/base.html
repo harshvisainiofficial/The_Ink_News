@@ -10,15 +10,15 @@
 <body>
     <header>
         <div class="top-ad">
-            {% if ad and ad.top_banner and ad.top_banner|isfile %}
-                <img src="{{ url_for('serve_uploads', filename=ad.top_banner|basename) }}" alt="Top Banner Ad" style="max-width: 100%;">
+            {% if ad and ad.top_banner %}
+                <img src="{{ ad.top_banner }}" alt="Top Banner Ad" style="max-width: 100%;">
             {% else %}
                 <p>यहां विज्ञापन दिखाएं</p>
             {% endif %}
         </div>
         <div class="header-main">
             <div class="logo" style="display: flex; align-items: center;">
-                <img src="{{ url_for('serve_uploads', filename='logo.png') }}" alt="द इंक न्यूज़ लोगो" style="height: 40px; margin-left: 10px;">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="द इंक न्यूज़ लोगो" style="height: 40px; margin-left: 10px;">
                 <h1 style="margin: 0;">द इंक न्यूज़</h1>
             </div>
             <nav class="top-nav">
@@ -26,7 +26,6 @@
                     <li><a href="{{ url_for('index') }}" {% if not selected_category %}class="active"{% endif %}>होम</a></li>
                     <li><a href="{{ url_for('video') }}">वीडियो</a></li>
                     <li><a href="{{ url_for('search') }}">खोज</a></li>
-                    <li><a href="{{ url_for('webstory') }}">वेबस्टोरी</a></li>
                     <li><a href="{{ url_for('epaper') }}">ई-पेपर</a></li>
                 </ul>
             </nav>
@@ -63,8 +62,8 @@
         </main>
 
         <aside class="right-ad">
-            {% if ad and ad.right_sidebar and ad.right_sidebar|isfile %}
-                <img src="{{ url_for('serve_uploads', filename=ad.right_sidebar|basename) }}" alt="Right Sidebar Ad" style="max-width: 100%;">
+            {% if ad and ad.right_sidebar %}
+                <img src="{{ ad.right_sidebar }}" alt="Right Sidebar Ad" style="max-width: 100%;">
             {% else %}
                 <p>यहां विज्ञापन दिखाएं</p>
             {% endif %}

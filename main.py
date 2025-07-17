@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory, request
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
@@ -6,26 +6,10 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'C:/Users/Harsh/Desktop/The Ink NEWS/The Ink NEWS/SharedUploads'
 
 db = SQLAlchemy(app)
 
-# Custom Jinja2 filters
-def isfile(path):
-    if not path:
-        return False
-    full_path = os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(path))
-    return os.path.isfile(full_path)
-
-def basename(path):
-    if not path:
-        return ''
-    return os.path.basename(path)
-
-app.jinja_env.filters['isfile'] = isfile
-app.jinja_env.filters['basename'] = basename
-
-# Models (unchanged)
+# Models
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100), nullable=False)
@@ -159,7 +143,6 @@ def search():
         query = request.args.get('q', '').strip()
         news_articles = []
         if query:
-            # Search in title and content blocks (text and subheading)
             news_articles = News.query.filter(
                 News.head_approved == True,
                 db.or_(
@@ -220,28 +203,3 @@ def news_detail(id):
     except Exception as e:
         print(f"Error querying news: {e}")
         return "Error loading news article.", 500
-
-@app.route('/Uploads/<path:filename>')
-def serve_uploads(filename):
-    try:
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-    except Exception as e:
-        print(f"Error serving file {filename}: {e}")
-        return "File not found.", 404
-
-# if __name__ == '__main__':
-#     with app.app_context():
-#         try:
-#             rashifal_news = News.query.filter_by(category='rashifal').all()
-#             for news in rashifal_news:
-#                 news.category = 'top-news'
-#                 print(f"Updated news ID {news.id} from rashifal to top-news")
-#             city_news = News.query.filter(News.location.in_(['Pilani', 'Chirawa'])).all()
-#             for news in city_news:
-#                 news.location = ''
-#                 print(f"Updated news ID {news.id} location from {news.location} to empty")
-#             db.session.commit()
-#         except Exception as e:
-#             print(f"Error updating database: {e}")
-#             db.session.rollback()
-#     app.run(debug=True, port=5000)
