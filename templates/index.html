@@ -7,13 +7,8 @@
 <div class="news-articles">
     {% if news_articles %}
         {% for article in news_articles %}
-            <article>
+            <article style="margin-bottom: 20px;">
                 <h3 style="font-size: 1.8em; font-weight: bold;">{{ article.title | safe }}</h3>
-                <p><strong>शहर:</strong> {{ article.location }}</p>
-                {% if article.location_text %}
-                    <p><strong>स्थान:</strong> {{ article.location_text }}</p>
-                {% endif %}
-                <p><strong>तारीख:</strong> {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
                 <div class="content-blocks">
                     {% for block in article.content_blocks|sort(attribute='order_index') %}
                         {% if block.block_type == 'subheading' %}
@@ -32,6 +27,8 @@
                         {% endif %}
                     {% endfor %}
                 </div>
+                <p style="color: #666; font-weight: lighter;">स्थान: {{ article.location }}</p>
+                <p style="color: #666; font-weight: lighter;">तारीख और समय: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
             </article>
         {% endfor %}
     {% else %}
