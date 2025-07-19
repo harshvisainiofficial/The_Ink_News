@@ -400,14 +400,16 @@ footer {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 1003; /* Below left-nav (1005) and overlay (1004) */
+        z-index: 1003;
+        pointer-events: none; /* Prevents logo from blocking interactions */
     }
 
     .floating-logo img {
-        width: 50px; /* Small size for mobile */
+        width: 50px;
         height: auto;
         opacity: 0.8;
         transition: opacity 0.3s;
+        display: block; /* Ensures image renders correctly */
     }
 
     .floating-logo img:hover {
