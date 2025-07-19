@@ -124,7 +124,7 @@ header {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    z-index: 1004; /* Increased to be just below left-nav */
 }
 
 /* Main Content */
@@ -344,7 +344,7 @@ footer {
         max-width: 300px;
         background-color: #fff;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        z-index: 1000;
+        z-index: 1005; /* Increased to be topmost layer */
         padding: 20px;
         max-height: 80vh;
         overflow-y: auto;
@@ -361,7 +361,7 @@ footer {
 
     .close-nav {
         display: block;
-    }
+   
 
     .left-nav ul {
         flex-direction: column;
