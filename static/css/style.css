@@ -314,6 +314,7 @@ footer {
         display: block;
     }
 
+ FacetGrid
     .top-nav ul {
         flex-direction: column;
         padding: 10px;
@@ -401,15 +402,15 @@ footer {
         bottom: 20px;
         right: 20px;
         z-index: 1003;
-        pointer-events: none; /* Prevents logo from blocking interactions */
+        pointer-events: none;
     }
 
     .floating-logo img {
-        width: 50px;
+        width: 75px; /* Increased from 50px to 75px for 1.5x size */
         height: auto;
         opacity: 0.8;
         transition: opacity 0.3s;
-        display: block; /* Ensures image renders correctly */
+        display: block;
     }
 
     .floating-logo img:hover {
