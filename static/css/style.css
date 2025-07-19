@@ -127,6 +127,11 @@ header {
     z-index: 1004;
 }
 
+/* Floating Logo */
+.floating-logo {
+    display: none;
+}
+
 /* Main Content */
 .content {
     flex: 3;
@@ -387,6 +392,26 @@ footer {
         margin: 5px 0 0 0;
         padding: 5px;
         font-size: 1em;
+    }
+
+    /* Floating Logo */
+    .floating-logo {
+        display: block;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1003; /* Below left-nav (1005) and overlay (1004) */
+    }
+
+    .floating-logo img {
+        width: 50px; /* Small size for mobile */
+        height: auto;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+    }
+
+    .floating-logo img:hover {
+        opacity: 1;
     }
 
     /* Main Container */
