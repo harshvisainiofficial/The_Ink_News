@@ -85,12 +85,38 @@
     </footer>
 
     <script>
-        document.getElementById('mobile-nav-toggle').addEventListener('click', function() {
-            document.querySelector('.top-nav').classList.toggle('active');
+        // Ensure toggle works for both navs
+        const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+        const leftNavToggle = document.getElementById('left-nav-toggle');
+        const topNav = document.querySelector('.top-nav');
+        const leftNav = document.querySelector('.left-nav');
+
+        mobileNavToggle.addEventListener('click', function() {
+            topNav.classList.toggle('active');
+            this.classList.toggle('active');
+            // Close left nav if open
+            leftNav.classList.remove('active');
+            leftNavToggle.classList.remove('active');
         });
 
-        document.getElementById('left-nav-toggle').addEventListener('click', function() {
-            document.querySelector('.left-nav').classList.toggle('active');
+        leftNavToggle.addEventListener('click', function() {
+            leftNav.classList.toggle('active');
+            this.classList.toggle('active');
+            // Close top nav if open
+            topNav.classList.remove('active');
+            mobileNavToggle.classList.remove('active');
+        });
+
+        // Close navs when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!topNav.contains(event.target) && !mobileNavToggle.contains(event.target)) {
+                topNav.classList.remove('active');
+                mobileNavToggle.classList.remove('active');
+            }
+            if (!leftNav.contains(event.target) && !leftNavToggle.contains(event.target)) {
+                leftNav.classList.remove('active');
+                leftNavToggle.classList.remove('active');
+            }
         });
     </script>
 </body>

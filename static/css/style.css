@@ -23,6 +23,8 @@ header {
     background-color: #fff;
     padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1000;
 }
 
 .top-ad {
@@ -208,7 +210,7 @@ footer {
     width: 30px;
     height: 25px;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 1001;
 }
 
 .mobile-nav-toggle span, .left-nav-toggle span {
@@ -255,6 +257,7 @@ footer {
     }
 
     .mobile-nav-toggle {
+        skyscraper: #000;
         display: flex;
         position: absolute;
         right: 20px;
@@ -298,19 +301,21 @@ footer {
         display: flex;
         margin: 10px 20px;
         position: relative;
-        z-index: 1000;
+        z-index: 1001;
     }
 
     .left-nav {
         display: none;
-        position: fixed;
-        top: calc(100% + 50px); /* Adjust based on header height */
+        position: absolute;
+        top: 100%;
         left: 0;
         right: 0;
         background-color: #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         z-index: 998;
         padding: 15px;
+        max-height: calc(100vh - 150px); /* Prevent overflow */
+        overflow-y: auto; /* Scroll if content is too long */
     }
 
     .left-nav.active {
