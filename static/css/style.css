@@ -24,7 +24,7 @@ header {
     padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     position: relative;
-    z-index: 1002; /* Increased to ensure header stays above dropdowns */
+    z-index: 1002;
 }
 
 .top-ad {
@@ -210,7 +210,7 @@ footer {
     width: 30px;
     height: 25px;
     cursor: pointer;
-    z-index: 1003; /* Increased to stay above header and dropdowns */
+    z-index: 1003;
 }
 
 .mobile-nav-toggle span, .left-nav-toggle span {
@@ -271,8 +271,8 @@ footer {
         left: 0;
         right: 0;
         background-color: #fff;
-        box Mylio-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        z-index: 1001; /* Ensure top-nav is below header but above left-nav */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 1001;
     }
 
     .top-nav.active {
@@ -301,21 +301,21 @@ footer {
         margin: 10px 20px;
         position: sticky;
         top: 0;
-        z-index: 1003; /* Same as mobile-nav-toggle to stay above all */
+        z-index: 1003;
     }
 
     .left-nav {
         display: none;
         position: absolute;
-        top: 35px; /* Position just below the toggle */
+        top: 45px; /* Lowered further to ensure top sections are visible */
         left: 0;
         right: 0;
         background-color: #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        z-index: 1000; /* Below header and toggles */
-        padding: 10px; /* Reduced padding for compactness */
-        max-height: calc(100vh - 200px); /* Smaller height to fit on screen */
-        overflow-y: auto; /* Scroll if content is too long */
+        z-index: 1000;
+        padding: 10px;
+        max-height: calc(100vh - 250px); /* Further reduced to fit all 8 sections */
+        overflow-y: auto;
     }
 
     .left-nav.active {
@@ -324,16 +324,16 @@ footer {
 
     .left-nav ul {
         flex-direction: column;
-        padding: 5px; /* Reduced padding for compactness */
+        padding: 5px;
     }
 
     .left-nav ul li {
-        margin: 5px 0; /* Reduced margin for compactness */
+        margin: 5px 0;
     }
 
     .left-nav ul li a {
-        padding: 8px; /* Reduced padding for compactness */
-        font-size: 1.1em; /* Slightly smaller font for better fit */
+        padding: 8px;
+        font-size: 1.1em;
     }
 
     .left-nav ul li div {
@@ -343,9 +343,9 @@ footer {
 
     .left-nav ul li div select {
         width: 100%;
-        margin: 5px 0 0 0; /* Reduced margin for compactness */
+        margin: 5px 0 0 0;
         padding: 5px;
-        font-size: 1em; /* Slightly smaller font */
+        font-size: 1em;
     }
 
     /* Main Container */
