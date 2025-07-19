@@ -17,9 +17,14 @@
             {% endif %}
         </div>
         <div class="header-main">
+            <div class="mobile-nav-toggle" id="mobile-nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
             <div class="logo" style="display: flex; align-items: center;">
                 <img src="https://res.cloudinary.com/dmvfrdzrl/image/upload/v1752772701/SharedUploads/ink-news-logo.png?f_auto,q_auto" alt="The Ink NEWS Logo" style="max-width: 150px; height: auto; display: block; margin: 0 auto;">
-                <h1 style="margin: 0;">द इंक न्यूज़</h1>
+                <h1 style="margin: 0;" class="site-title">द इंक न्यूज़</h1>
             </div>
             <nav class="top-nav">
                 <ul>
@@ -32,6 +37,11 @@
         </div>
     </header>
 
+    <div class="left-nav-toggle" id="left-nav-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
     <div class="main-container">
         <aside class="left-nav">
             <ul>
@@ -73,5 +83,15 @@
     <footer>
         <p>© 2025 द इंक न्यूज़. सर्वाधिकार सुरक्षित।</p>
     </footer>
+
+    <script>
+        document.getElementById('mobile-nav-toggle').addEventListener('click', function() {
+            document.querySelector('.top-nav').classList.toggle('active');
+        });
+
+        document.getElementById('left-nav-toggle').addEventListener('click', function() {
+            document.querySelector('.left-nav').classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
