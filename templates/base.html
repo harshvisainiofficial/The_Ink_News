@@ -42,8 +42,10 @@
         <span></span>
         <span></span>
     </div>
+    <div class="left-nav-overlay" id="left-nav-overlay"></div>
     <div class="main-container">
-        <aside class="left-nav">
+        <aside class="left-nav" id="left-nav">
+            <button class="close-nav" id="close-nav">✕</button>
             <ul>
                 <li><a href="{{ url_for('live_news') }}">लाइव न्यूज़</a></li>
                 <li><a href="{{ url_for('category', category='top-news') }}">टॉप न्यूज़</a></li>
@@ -85,26 +87,43 @@
     </footer>
 
     <script>
-        // Ensure toggle works for both navs
+        // Toggle for top navigation
         const mobileNavToggle = document.getElementById('mobile-nav-toggle');
         const leftNavToggle = document.getElementById('left-nav-toggle');
         const topNav = document.querySelector('.top-nav');
-        const leftNav = document.querySelector('.left-nav');
+        const leftNav = document.getElementById('left-nav');
+        const leftNavOverlay = document.getElementById('left-nav-overlay');
+        const closeNav = document.getElementById('close-nav');
 
         mobileNavToggle.addEventListener('click', function() {
             topNav.classList.toggle('active');
             this.classList.toggle('active');
             // Close left nav if open
             leftNav.classList.remove('active');
+            leftNavOverlay.classList.remove('active');
             leftNavToggle.classList.remove('active');
         });
 
         leftNavToggle.addEventListener('click', function() {
             leftNav.classList.toggle('active');
+            leftNavOverlay.classList.toggle('active');
             this.classList.toggle('active');
             // Close top nav if open
             topNav.classList.remove('active');
             mobileNavToggle.classList.remove('active');
+        });
+
+        // Close left nav when clicking overlay or close button
+        leftNavOverlay.addEventListener('click', function() {
+            leftNav.classList.remove('active');
+            leftNavOverlay.classList.remove('active');
+            leftNavToggle.classList.remove('active');
+        });
+
+        closeNav.addEventListener('click', function() {
+            leftNav.classList.remove('active');
+            leftNavOverlay.classList.remove('active');
+            leftNavToggle.classList.remove('active');
         });
 
         // Close navs when clicking outside
@@ -113,8 +132,9 @@
                 topNav.classList.remove('active');
                 mobileNavToggle.classList.remove('active');
             }
-            if (!leftNav.contains(event.target) && !leftNavToggle.contains(event.target)) {
+            if (!leftNav.contains(event.target) && !leftNavToggle.contains(event.target) && !leftNavOverlay.contains(event.target)) {
                 leftNav.classList.remove('active');
+                leftNavOverlay.classList.remove('active');
                 leftNavToggle.classList.remove('active');
             }
         });

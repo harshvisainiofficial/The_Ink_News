@@ -97,6 +97,36 @@ header {
     color: #fff;
 }
 
+/* Close Button for Left Nav */
+.close-nav {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    cursor: pointer;
+    text-align: center;
+    line-height: 30px;
+}
+
+/* Overlay for Left Nav */
+.left-nav-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
 /* Main Content */
 .content {
     flex: 3;
@@ -306,19 +336,30 @@ footer {
 
     .left-nav {
         display: none;
-        position: absolute;
-        top: 100px; /* Increased to lower dropdown further */
-        left: 0;
-        right: 0;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-width: 300px;
         background-color: #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         z-index: 1000;
-        padding: 10px;
-        max-height: calc(100vh - 320px); /* Adjusted for better fit */
+        padding: 20px;
+        max-height: 80vh;
         overflow-y: auto;
+        border-radius: 8px;
     }
 
     .left-nav.active {
+        display: block;
+    }
+
+    .left-nav-overlay.active {
+        display: block;
+    }
+
+    .close-nav {
         display: block;
     }
 
