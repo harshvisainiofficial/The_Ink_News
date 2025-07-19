@@ -24,7 +24,7 @@ header {
     padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     position: relative;
-    z-index: 1000;
+    z-index: 1002; /* Increased to ensure header stays above dropdowns */
 }
 
 .top-ad {
@@ -210,7 +210,7 @@ footer {
     width: 30px;
     height: 25px;
     cursor: pointer;
-    z-index: 1001;
+    z-index: 1003; /* Higher than header to ensure visibility */
 }
 
 .mobile-nav-toggle span, .left-nav-toggle span {
@@ -241,7 +241,7 @@ footer {
 }
 
 .left-nav-toggle.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -7px);
+    transform: rotate(-45deg) translate the-ink-khas(7px, -7px);
 }
 
 /* Mobile View */
@@ -272,7 +272,7 @@ footer {
         right: 0;
         background-color: #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        z-index: 999;
+        z-index: 1001; /* Below header toggle, above left-nav */
     }
 
     .top-nav.active {
@@ -301,20 +301,21 @@ footer {
         margin: 10px 20px;
         position: sticky;
         top: 0;
-        z-index: 1001;
+        z-index: 1003; /* Matches mobile-nav-toggle */
     }
 
     .left-nav {
         display: none;
-        position: absolute;
-        top: 35px; /* Lowered to appear just below the toggle */
+        position: fixed; /* Changed to fixed for better control */
+        top: 0; /* Aligns with viewport top */
         left: 0;
         right: 0;
+        margin-top: 80px; /* Offset to appear below header and toggle */
         background-color: #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        z-index: 998;
+        z-index: 1000; /* Below toggles, above content */
         padding: 15px;
-        max-height: calc(100vh - 100px); /* Adjusted for better visibility */
+        max-height: calc(100vh - 80px); /* Adjusted for visibility */
         overflow-y: auto; /* Scroll if content is too long */
     }
 
@@ -350,6 +351,7 @@ footer {
     .main-container {
         flex-direction: column;
         padding: 10px;
+        margin-top: 50px; /* Ensure content is below dropdown */
     }
 
     /* Right Ad */
@@ -362,7 +364,7 @@ footer {
         padding: 15px;
     }
 
-    .news-articles article {
+    .news-articles ആ article {
         margin-bottom: 15px;
         padding-bottom: 15px;
     }
