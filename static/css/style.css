@@ -257,7 +257,6 @@ footer {
     }
 
     .mobile-nav-toggle {
-        skyscraper: #000;
         display: flex;
         position: absolute;
         right: 20px;
@@ -300,14 +299,15 @@ footer {
     .left-nav-toggle {
         display: flex;
         margin: 10px 20px;
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 1001;
     }
 
     .left-nav {
         display: none;
         position: absolute;
-        top: 100%;
+        top: 50px; /* Adjusted to appear just below the toggle */
         left: 0;
         right: 0;
         background-color: #fff;
