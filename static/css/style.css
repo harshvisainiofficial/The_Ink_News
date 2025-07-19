@@ -129,7 +129,24 @@ header {
 
 /* Floating Logo */
 .floating-logo {
-    display: none;
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1003;
+    pointer-events: none;
+}
+
+.floating-logo img {
+    width: 75px;
+    height: auto;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+    display: block;
+}
+
+.floating-logo img:hover {
+    opacity: 1;
 }
 
 /* Main Content */
@@ -314,7 +331,6 @@ footer {
         display: block;
     }
 
- FacetGrid
     .top-nav ul {
         flex-direction: column;
         padding: 10px;
@@ -393,28 +409,6 @@ footer {
         margin: 5px 0 0 0;
         padding: 5px;
         font-size: 1em;
-    }
-
-    /* Floating Logo */
-    .floating-logo {
-        display: block;
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 1003;
-        pointer-events: none;
-    }
-
-    .floating-logo img {
-        width: 75px; /* Increased from 50px to 75px for 1.5x size */
-        height: auto;
-        opacity: 0.8;
-        transition: opacity 0.3s;
-        display: block;
-    }
-
-    .floating-logo img:hover {
-        opacity: 1;
     }
 
     /* Main Container */
