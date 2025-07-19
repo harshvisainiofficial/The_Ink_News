@@ -307,7 +307,7 @@ footer {
     .left-nav {
         display: none;
         position: absolute;
-        top: 25px; /* Lowered to ensure all 8 sections are visible */
+        top: 55px; /* Increased to lower dropdown for full visibility */
         left: 0;
         right: 0;
         background-color: #fff;
