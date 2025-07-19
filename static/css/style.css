@@ -307,14 +307,14 @@ footer {
     .left-nav {
         display: none;
         position: absolute;
-        top: 55px; /* Increased to lower dropdown for full visibility */
+        top: 80px; /* Increased to lower dropdown significantly */
         left: 0;
         right: 0;
         background-color: #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         z-index: 1000;
         padding: 10px;
-        max-height: calc(100vh - 250px); /* Kept compact to fit screen */
+        max-height: calc(100vh - 300px); /* Adjusted for better fit */
         overflow-y: auto;
     }
 
