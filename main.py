@@ -54,10 +54,27 @@ def index():
     try:
         news_articles = News.query.filter_by(head_approved=True).order_by(News.date_published.desc()).all()
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
+        print(f"Index Route - Articles Fetched: {len(news_articles)}")
+        for article in news_articles:
+            print(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
         return render_template('index.html', news_articles=news_articles, ad=ad)
     except Exception as e:
-        print(f"Error querying database: {e}")
+        print(f"Error querying database in index: {e}")
         return render_template('index.html', news_articles=[], ad=None)
+
+@app.route('/article/<int:id>')
+def article(id):
+    try:
+        news = News.query.get_or_404(id)
+        if not news.head_approved:
+            return "News article not found or not approved.", 404
+        blocks = ContentBlock.query.filter_by(news_id=news.id).order_by(ContentBlock.order_index).all()
+        ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
+        print(f"Article Route - ID: {id}, Title: {news.title}, Blocks: {len(blocks)}")
+        return render_template('article.html', news=news, blocks=blocks, ad=ad)
+    except Exception as e:
+        print(f"Error querying article {id}: {e}")
+        return "Error loading article.", 500
 
 @app.route('/rajya-shehar')
 def rajya_shehar():
@@ -109,6 +126,9 @@ def category(category):
         news_articles = query.order_by(News.date_published.desc()).all()
         cities = ['Bagar', 'Khetri', 'Bissau', 'Buhana', 'Chirawa', 'Gudhagorji', 'Jhunjhunu', 'Mandawa', 'Mukandgarh', 'Nawalgarh', 'Pilani', 'Surajgarh', 'Udaipurwati']
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
+        print(f"Category Route - Category: {category}, Articles Fetched: {len(news_articles)}")
+        for article in news_articles:
+            print(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
         return render_template('index.html', 
                               news_articles=news_articles, 
                               ad=ad, 
@@ -132,6 +152,9 @@ def video():
             News.id.in_(db.session.query(ContentBlock.news_id).filter(ContentBlock.block_type == 'video'))
         ).order_by(News.date_published.desc()).all()
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
+        print(f"Video Route - Articles Fetched: {len(news_articles)}")
+        for article in news_articles:
+            print(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
         return render_template('video.html', news_articles=news_articles, ad=ad)
     except Exception as e:
         print(f"Error querying video articles: {e}")
@@ -199,6 +222,7 @@ def news_detail(id):
             return "News article not found or not approved.", 404
         blocks = ContentBlock.query.filter_by(news_id=news.id).order_by(ContentBlock.order_index).all()
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
+        print(f"News Detail Route - ID: {id}, Title: {news.title}, Blocks: {len(blocks)}")
         return render_template('news_detail.html', news=news, blocks=blocks, ad=ad, selected_category=news.category)
     except Exception as e:
         print(f"Error querying news: {e}")

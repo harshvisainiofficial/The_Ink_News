@@ -70,6 +70,33 @@
 
         <main class="content">
             {% block content %}
+                <section class="news-articles">
+                    {% if news_articles %}
+                        {% for article in news_articles %}
+                            <article>
+                                <div class="article-header">
+                                    <h3>{{ article.title }}</h3>
+                                    <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, _external=True) }}" title="Share this article">↗</a>
+                                </div>
+                                {% if article.content_blocks %}
+                                    {% for block in article.content_blocks %}
+                                        {% if block.block_type == 'image' %}
+                                            <img src="{{ block.content }}" alt="{{ article.title }}" class="news-image">
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for block in article.content_blocks %}
+                                        {% if block.block_type == 'text' %}
+                                            <p>{{ block.content | safe }}</p>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                <a href="{{ url_for('article', id=article.id) }}" class="read-more">और पढ़ें</a>
+                            </article>
+                        {% endfor %}
+                    {% else %}
+                        <p>कोई लेख उपलब्ध नहीं है। कृपया डेटाबेस में 'head_approved=True' लेखों की जाँच करें।</p>
+                    {% endif %}
+                </section>
             {% endblock %}
         </main>
 
@@ -86,12 +113,22 @@
         <img src="https://res.cloudinary.com/dmvfrdzrl/image/upload/v1752772701/SharedUploads/ink-news-logo.png?f_auto,q_auto" alt="The Ink NEWS Floating Logo">
     </div>
 
+    <!-- Share Pop-up -->
+    <div class="share-popup" id="share-popup" style="display: none;">
+        <div class="share-popup-content">
+            <button class="close-popup" id="close-popup">✕</button>
+            <h3>लिंक साझा करें</h3>
+            <input type="text" id="share-link" readonly>
+            <button id="copy-link">लिंक कॉपी करें</button>
+        </div>
+    </div>
+
     <footer>
         <p>© 2025 द इंक न्यूज़. सर्वाधिकार सुरक्षित।</p>
     </footer>
 
     <script>
-        // Toggle for top navigation
+        // Navigation Toggles
         const mobileNavToggle = document.getElementById('mobile-nav-toggle');
         const leftNavToggle = document.getElementById('left-nav-toggle');
         const topNav = document.querySelector('.top-nav');
@@ -102,7 +139,6 @@
         mobileNavToggle.addEventListener('click', function() {
             topNav.classList.toggle('active');
             this.classList.toggle('active');
-            // Close left nav if open
             leftNav.classList.remove('active');
             leftNavOverlay.classList.remove('active');
             leftNavToggle.classList.remove('active');
@@ -112,12 +148,10 @@
             leftNav.classList.toggle('active');
             leftNavOverlay.classList.toggle('active');
             this.classList.toggle('active');
-            // Close top nav if open
             topNav.classList.remove('active');
             mobileNavToggle.classList.remove('active');
         });
 
-        // Close left nav when clicking overlay or close button
         leftNavOverlay.addEventListener('click', function() {
             leftNav.classList.remove('active');
             leftNavOverlay.classList.remove('active');
@@ -130,7 +164,6 @@
             leftNavToggle.classList.remove('active');
         });
 
-        // Close navs when clicking outside
         document.addEventListener('click', function(event) {
             if (!topNav.contains(event.target) && !mobileNavToggle.contains(event.target)) {
                 topNav.classList.remove('active');
@@ -140,6 +173,38 @@
                 leftNav.classList.remove('active');
                 leftNavOverlay.classList.remove('active');
                 leftNavToggle.classList.remove('active');
+            }
+        });
+
+        // Share Pop-up Logic
+        const shareIcons = document.querySelectorAll('.share-icon');
+        const sharePopup = document.getElementById('share-popup');
+        const shareLinkInput = document.getElementById('share-link');
+        const copyLinkButton = document.getElementById('copy-link');
+        const closePopupButton = document.getElementById('close-popup');
+
+        shareIcons.forEach(icon => {
+            icon.addEventListener('click', function(event) {
+                event.preventDefault();
+                const url = this.getAttribute('data-url');
+                shareLinkInput.value = url;
+                sharePopup.style.display = 'flex';
+            });
+        });
+
+        copyLinkButton.addEventListener('click', function() {
+            shareLinkInput.select();
+            document.execCommand('copy');
+            alert('लिंक कॉपी हो गया है!');
+        });
+
+        closePopupButton.addEventListener('click', function() {
+            sharePopup.style.display = 'none';
+        });
+
+        sharePopup.addEventListener('click', function(event) {
+            if (event.target === sharePopup) {
+                sharePopup.style.display = 'none';
             }
         });
     </script>

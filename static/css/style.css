@@ -165,25 +165,132 @@ header {
 
 .content h3 {
     font-weight: bold;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
 }
 
-.news-articles article {
+.news-articles article, .news-article article {
     margin-bottom: 20px;
     padding-bottom: 20px;
     border-bottom: 1px solid #eee;
 }
 
-.news-articles article:last-child {
+.news-articles article:last-child, .news-article article:last-child {
     border-bottom: none;
-}
-
-.news-articles h3 {
-    margin: 0 0 10px 0;
 }
 
 .preview-image, .news-image {
     max-width: 100%;
     margin: 10px 0;
+}
+
+.news-video {
+    max-width: 100%;
+    margin: 10px 0;
+}
+
+.article-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.share-icon {
+    font-size: 1.2em;
+    color: #d32f2f;
+    text-decoration: none;
+    vertical-align: middle;
+    line-height: 1;
+    display: inline-block;
+}
+
+.share-icon:hover {
+    color: #b71c1c;
+}
+
+.read-more {
+    color: #d32f2f;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.article-content {
+    margin-top: 10px;
+}
+
+/* Share Pop-up */
+.share-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1006;
+    justify-content: center;
+    align-items: center;
+}
+
+.share-popup-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    max-width: 400px;
+    width: 90%;
+}
+
+.share-popup-content h3 {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.share-popup-content input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.share-popup-content button {
+    padding: 10px 20px;
+    background-color: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.share-popup-content button:hover {
+    background-color: #b71c1c;
+}
+
+.close-popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    line-height: 25px;
 }
 
 /* Right Ad */
@@ -197,10 +304,6 @@ header {
 }
 
 /* Back Button */
-.back-btn-container {
-    margin-bottom: 20px;
-}
-
 .back-btn {
     display: inline-block;
     padding: 10px 20px;
@@ -218,31 +321,36 @@ header {
     background: #5a6268;
 }
 
-.tooltip {
-    position: relative;
-    display: inline-block;
+/* Search Bar */
+.search-bar {
+    margin-bottom: 20px;
 }
 
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: 120px;
-    background-color: #555;
+.search-bar form {
+    display: flex;
+    gap: 10px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.search-bar button {
+    padding: 10px 20px;
+    background-color: #d32f2f;
     color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 100;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -60px;
-    opacity: 0;
-    transition: opacity 0.3s;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
 }
 
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
+.search-bar button:hover {
+    background-color: #b71c1c;
 }
 
 /* Footer */
@@ -332,6 +440,7 @@ footer {
     }
 
     .top-nav ul {
+        display: flex;
         flex-direction: column;
         padding: 10px;
     }
@@ -427,7 +536,7 @@ footer {
         padding: 15px;
     }
 
-    .news-articles article {
+    .news-articles article, .news-article article {
         margin-bottom: 15px;
         padding-bottom: 15px;
     }
@@ -436,14 +545,30 @@ footer {
         font-size: 1.5em;
     }
 
+    /* Share Pop-up */
+    .share-popup-content {
+        width: 80%;
+    }
+
+    .article-header {
+        gap: 8px;
+    }
+
+    .share-icon {
+        font-size: 1em;
+        line-height: 1.5em;
+    }
+
     /* Search Bar */
-    .search-bar input {
+    .search-bar form {
+        flex-direction: column;
+    }
+
+    .search-bar input, .search-bar button {
         width: 100%;
-        max-width: none;
     }
 
     .search-bar button {
-        width: 100%;
         margin-top: 10px;
     }
 }

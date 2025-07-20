@@ -1,44 +1,37 @@
 {% extends "base.html" %}
-
-{% block title %}खोज - द इंक न्यूज़{% endblock %}
-
+{% block title %}द इंक न्यूज़ - खोज{% endblock %}
 {% block content %}
-<h2>खोज</h2>
-<div class="search-bar">
-    <form action="{{ url_for('search') }}" method="get">
-        <input type="text" name="q" value="{{ query | safe }}" placeholder="समाचार खोजें..." style="padding: 8px; width: 300px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px;">
-        <button type="submit" style="padding: 8px 16px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; background-color: #f8f8f8; cursor: pointer;">खोजें</button>
-    </form>
-</div>
-<div class="news-articles">
-    {% if news_articles %}
-        {% for article in news_articles %}
-            <article style="margin-bottom: 20px;">
-                <h3 style="font-size: 1.8em; font-weight: bold;">{{ article.title | safe }}</h3>
-                <div class="content-blocks">
-                    {% for block in article.content_blocks|sort(attribute='order_index') %}
-                        {% if block.block_type == 'subheading' %}
-                            <h4 style="font-weight: bold;">{{ block.content | safe }}</h4>
-                        {% elif block.block_type == 'text' %}
-                            <p>{{ block.content | safe }}</p>
-                        {% elif block.block_type == 'image' and block.content %}
-                            <img src="{{ block.content }}?f_auto,q_auto" alt="News Image" style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                        {% elif block.block_type == 'video' and block.content %}
-                            <video controls style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                                <source src="{{ block.content }}?f_auto,q_auto" type="video/mp4">
-                                आपका ब्राउज़र वीडियो टैग का समर्थन नहीं करता।
-                            </video>
-                        {% elif block.block_type == 'advertisement' and block.content %}
-                            <img src="{{ block.content }}?f_auto,q_auto" alt="Advertisement" style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <p style="color: #666; font-weight: lighter;">स्थान: {{ article.location }}</p>
-                <p style="color: #666; font-weight: lighter;">तारीख और समय: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
-            </article>
-        {% endfor %}
-    {% else %}
-        <p>कोई समाचार नहीं मिला{% if query %} "{{ query }}" के लिए{% endif %}।</p>
-    {% endif %}
-</div>
+    <section class="search-bar">
+        <form action="{{ url_for('search') }}" method="get">
+            <input type="text" name="q" placeholder="खोजें..." value="{{ query }}">
+            <button type="submit">खोज</button>
+        </form>
+    </section>
+    <section class="news-articles">
+        {% if news_articles %}
+            {% for article in news_articles %}
+                <article>
+                    <div class="article-header">
+                        <h3>{{ article.title }}</h3>
+                        <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, _external=True) }}" title="Share this article">↗</a>
+                    </div>
+                    {% if article.content_blocks %}
+                        {% for block in article.content_blocks %}
+                            {% if block.block_type == 'image' %}
+                                <img src="{{ block.content }}" alt="{{ article.title }}" class="news-image">
+                            {% endif %}
+                        {% endfor %}
+                        {% for block in article.content_blocks %}
+                            {% if block.block_type == 'text' %}
+                                <p>{{ block.content | safe }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    <a href="{{ url_for('article', id=article.id) }}" class="read-more">और पढ़ें</a>
+                </article>
+            {% endfor %}
+        {% else %}
+            <p>कोई लेख उपलब्ध नहीं है। कृपया अपनी खोज बदलें या डेटाबेस की जाँच करें।</p>
+        {% endif %}
+    </section>
 {% endblock %}

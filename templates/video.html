@@ -1,26 +1,36 @@
 {% extends "base.html" %}
-
-{% block title %}वीडियो - द इंक न्यूज़{% endblock %}
-
+{% block title %}द इंक न्यूज़ - वीडियो{% endblock %}
 {% block content %}
-<h2>वीडियो</h2>
-<div class="news-articles">
-    {% for article in news_articles %}
-        <article>
-            <h3 style="font-size: 1.8em; font-weight: bold;">{{ article.title | safe }}</h3>
-            <div class="content-blocks">
-                {% for block in article.content_blocks|sort(attribute='order_index') %}
-                    {% if block.block_type == 'video' and block.content %}
-                        <video controls style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                            <source src="{{ block.content }}?f_auto,q_auto" type="video/mp4">
-                            आपका ब्राउज़र वीडियो टैग का समर्थन नहीं करता।
-                        </video>
+    <section class="news-articles">
+        {% if news_articles %}
+            {% for article in news_articles %}
+                <article>
+                    <div class="article-header">
+                        <h3>{{ article.title }}</h3>
+                        <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, _external=True) }}" title="Share this article">↗</a>
+                    </div>
+                    {% if article.content_blocks %}
+                        {% for block in article.content_blocks %}
+                            {% if block.block_type == 'video' %}
+                                <video controls class="news-video">
+                                    <source src="{{ block.content }}" type="video/mp4">
+                                    आपका ब्राउज़र वीडियो टैग को सपोर्ट नहीं करता।
+                                </video>
+                            {% elif block.block_type == 'image' %}
+                                <img src="{{ block.content }}" alt="{{ article.title }}" class="news-image">
+                            {% endif %}
+                        {% endfor %}
+                        {% for block in article.content_blocks %}
+                            {% if block.block_type == 'text' %}
+                                <p>{{ block.content | safe }}</p>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
-                {% endfor %}
-            </div>
-        </article>
-    {% else %}
-        <p>कोई वीडियो उपलब्ध नहीं है।</p>
-    {% endfor %}
-</div>
+                    <a href="{{ url_for('article', id=article.id) }}" class="read-more">और पढ़ें</a>
+                </article>
+            {% endfor %}
+        {% else %}
+            <p>कोई वीडियो लेख उपलब्ध नहीं है। कृपया डेटाबेस में 'head_approved=True' और 'video' ब्लॉक की जाँच करें।</p>
+        {% endif %}
+    </section>
 {% endblock %}

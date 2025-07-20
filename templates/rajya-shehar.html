@@ -1,39 +1,31 @@
 {% extends "base.html" %}
-
-{% block title %}राज्य शहर - द इंक न्यूज़{% endblock %}
-
+{% block title %}द इंक न्यूज़ - राज्य शहर{% endblock %}
 {% block content %}
-<h2>राज्य शहर {% if selected_city %} - {{ selected_city }}{% endif %}</h2>
-<div class="news-articles">
-    {% if news_articles %}
-        {% for article in news_articles %}
-            <article style="margin-bottom: 20px;">
-                <h3 style="font-size: 1.8em; font-weight: bold;">{{ article.title | safe }}</h3>
-                <div class="content-blocks">
-                    {% for block in article.content_blocks|sort(attribute='order_index') %}
-                        {% if block.block_type == 'subheading' %}
-                            <h4 style="font-weight: bold;">{{ block.content | safe }}</h4>
-                        {% elif block.block_type == 'text' %}
-                            <p>{{ block.content | safe }}</p>
-                        {% elif block.block_type == 'image' and block.content %}
-                            <img src="{{ block.content }}?f_auto,q_auto" alt="News Image" style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                        {% elif block.block_type == 'video' and block.content %}
-                            <video controls style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                                <source src="{{ block.content }}?f_auto,q_auto" type="video/mp4">
-                                आपका ब्राउज़र वीडियो टैग का समर्थन नहीं करता।
-                            </video>
-                        {% elif block.block_type == 'advertisement' and block.content %}
-                            <img src="{{ block.content }}?f_auto,q_auto" alt="Advertisement" style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <p style="color: #666; font-weight: lighter;">स्थान: {{ article.location_text }}</p>
-                <p style="color: #666; font-weight: lighter;">तारीख और समय: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
-            </article>
-        {% endfor %}
-        
-    {% else %}
-        <p>कोई समाचार उपलब्ध नहीं है{% if selected_city %} {{ selected_city }} के लिए{% endif %}।</p>
-    {% endif %}
-</div>
+    <section class="news-articles">
+        {% if news_articles %}
+            {% for article in news_articles %}
+                <article>
+                    <div class="article-header">
+                        <h3>{{ article.title }}</h3>
+                        <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, _external=True) }}" title="Share this article">↗</a>
+                    </div>
+                    {% if article.content_blocks %}
+                        {% for block in article.content_blocks %}
+                            {% if block.block_type == 'image' %}
+                                <img src="{{ block.content }}" alt="{{ article.title }}" class="news-image">
+                            {% endif %}
+                        {% endfor %}
+                        {% for block in article.content_blocks %}
+                            {% if block.block_type == 'text' %}
+                                <p>{{ block.content | safe }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    <a href="{{ url_for('article', id=article.id) }}" class="read-more">और पढ़ें</a>
+                </article>
+            {% endfor %}
+        {% else %}
+            <p>कोई लेख उपलब्ध नहीं है। कृपया डेटाबेस में 'head_approved=True' लेखों की जाँच करें।</p>
+        {% endif %}
+    </section>
 {% endblock %}
