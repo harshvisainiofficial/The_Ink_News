@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}द इंक न्यूज़{% endblock %}</title>
+    <!-- Open Graph Meta Tags for Link Preview -->
+    <meta property="og:site_name" content="द इंक न्यूज़">
+    <meta property="og:type" content="website">
+    {% if news %}
+        <meta property="og:title" content="{{ news.title | safe }}">
+        {% set first_image = news.content_blocks | selectattr('block_type', 'equalto', 'image') | first %}
+        {% if first_image %}
+            <meta property="og:image" content="{{ first_image.content | safe }}">
+        {% endif %}
+    {% else %}
+        <meta property="og:title" content="द इंक न्यूज़">
+        <meta property="og:image" content="https://res.cloudinary.com/dmvfrdzrl/image/upload/v1752772701/SharedUploads/ink-news-logo.png?f_auto,q_auto">
+    {% endif %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
