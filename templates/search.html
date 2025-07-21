@@ -16,18 +16,23 @@
                         <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, _external=True) }}" title="Share this article">↗</a>
                     </div>
                     {% if article.content_blocks %}
-                        {% for block in article.content_blocks %}
+                        {% for block in article.content_blocks|sort(attribute='order_index') %}
                             {% if block.block_type == 'image' %}
                                 <img src="{{ block.content }}" alt="{{ article.title }}" class="news-image">
-                            {% endif %}
-                        {% endfor %}
-                        {% for block in article.content_blocks %}
-                            {% if block.block_type == 'text' %}
-                                <p>{{ block.content | safe }}</p>
+                            {% elif block.block_type in ['text', 'subheading'] %}
+                                <div class="article-content">
+                                    {{ block.content | safe }}
+                                </div>
+                            {% elif block.block_type == 'video' %}
+                                <video controls class="news-video">
+                                    <source src="{{ block.content }}" type="video/mp4">
+                                    आपका ब्राउज़र वीडियो टैग को सपोर्ट नहीं करता।
+                                </video>
                             {% endif %}
                         {% endfor %}
                     {% endif %}
-                    <a href="{{ url_for('article', id=article.id) }}" class="read-more">और पढ़ें</a>
+                    <p style="color: #666; font-weight: lighter;">स्थान: {{ article.location_text }}</p>
+                    <p style="color: #666; font-weight: lighter;">तारीख और समय: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
                 </article>
             {% endfor %}
         {% else %}
