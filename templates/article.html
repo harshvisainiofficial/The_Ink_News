@@ -24,6 +24,9 @@
                         {% endif %}
                     {% endfor %}
                 {% endif %}
+                <p style="color: #666; font-weight: lighter;">स्थान: {{ news.location_text }}</p>
+                <p style="color: #666; font-weight: lighter;">तारीख और समय: {{ news.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
+                <br>
                 <a href="{{ url_for('index') }}" class="back-btn">वापस</a>
             </article>
         {% else %}
