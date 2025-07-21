@@ -120,6 +120,7 @@
             <h3>लिंक साझा करें</h3>
             <input type="text" id="share-link" readonly>
             <button id="copy-link">लिंक कॉपी करें</button>
+            <a id="whatsapp-share" href="#" target="_blank" class="whatsapp-btn">WhatsApp पर साझा करें</a>
         </div>
     </div>
 
@@ -181,6 +182,7 @@
         const sharePopup = document.getElementById('share-popup');
         const shareLinkInput = document.getElementById('share-link');
         const copyLinkButton = document.getElementById('copy-link');
+        const whatsappShareButton = document.getElementById('whatsapp-share');
         const closePopupButton = document.getElementById('close-popup');
 
         shareIcons.forEach(icon => {
@@ -188,6 +190,10 @@
                 event.preventDefault();
                 const url = this.getAttribute('data-url');
                 shareLinkInput.value = url;
+                // Set WhatsApp share link with pre-filled message
+                const encodedUrl = encodeURIComponent(url);
+                const message = encodeURIComponent('Check out this news article: ');
+                whatsappShareButton.href = `https://api.whatsapp.com/send?text=${message}${encodedUrl}`;
                 sharePopup.style.display = 'flex';
             });
         });

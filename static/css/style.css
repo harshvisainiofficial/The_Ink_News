@@ -281,6 +281,21 @@ header {
     background-color: #b71c1c;
 }
 
+.whatsapp-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #25D366;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-top: 10px;
+    font-size: 1em;
+}
+
+.whatsapp-btn:hover {
+    background-color: #1DA851;
+}
+
 .close-popup {
     position: absolute;
     top: 10px;
