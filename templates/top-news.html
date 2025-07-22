@@ -1,36 +1,37 @@
 {% extends "base.html" %}
-
 {% block title %}टॉप न्यूज़ - द इंक न्यूज़{% endblock %}
-
 {% block content %}
-<h2>टॉप न्यूज़</h2>
-<div class="news-articles">
-    {% for article in news_articles %}
-        <article style="margin-bottom: 20px;">
-            <h3 style="font-size: 1.8em; font-weight: bold;">{{ article.title | safe }}</h3>
-            <div class="content-blocks">
-                {% for block in article.content_blocks|sort(attribute='order_index') %}
-                    {% if block.block_type == 'subheading' %}
-                        <h4 style="font-weight: bold;">{{ block.content | safe }}</h4>
-                    {% elif block.block_type == 'text' %}
-                        <p>{{ block.content | safe }}</p>
-                    {% elif block.block_type == 'image' and block.content %}
-                        <img src="{{ block.content }}?f_auto,q_auto" alt="News Image" style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                    {% elif block.block_type == 'video' and block.content %}
-                        <video controls style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                            <source src="{{ block.content }}?f_auto,q_auto" type="video/mp4">
-                            आपका ब्राउज़र वीडियो टैग का समर्थन नहीं करता।
-                        </video>
-                    {% elif block.block_type == 'advertisement' and block.content %}
-                        <img src="{{ block.content }}?f_auto,q_auto" alt="Advertisement" style="max-width: 100%; margin: 10px 0;" loading="lazy">
-                    {% endif %}
-                {% endfor %}
-            </div>
-            <p style="color: #666; font-weight: lighter;">स्थान: {{ article.location_text }}</p>
-            <p style="color: #666; font-weight: lighter;">तारीख और समय: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
-        </article>
-    {% else %}
-        <p>कोई समाचार उपलब्ध नहीं है।</p>
-    {% endfor %}
-</div>
+    <h2>टॉप न्यूज़</h2>
+    <div class="news-articles">
+        {% if news_articles %}
+            {% for article in news_articles %}
+                <article style="margin-bottom: 20px;">
+                    <div class="article-header">
+                        <h3 style="font-size: 1.8em; font-weight: bold;">{{ article.title | safe }}</h3>
+                        <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, _external=True) }}" title="Share this article">↗</a>
+                    </div>
+                    <div class="content-blocks">
+                        {% for block in article.content_blocks|sort(attribute='order_index') %}
+                            {% if block.block_type == 'image' and block.content %}
+                                <img src="{{ block.content }}?f_auto,q_auto" alt="{{ article.title }}" class="news-image" style="max-width: 100%; margin: 10px 0;" loading="lazy">
+                            {% elif block.block_type == 'subheading' %}
+                                <h4 style="font-weight: bold;">{{ block.content | safe }}</h4>
+                            {% elif block.block_type == 'text' %}
+                                <p>{{ block.content | safe }}</p>
+                            {% elif block.block_type == 'video' and block.content %}
+                                <video controls style="max-width: 100%; margin: 10px 0;" loading="lazy">
+                                    <source src="{{ block.content }}?f_auto,q_auto" type="video/mp4">
+                                    आपका ब्राउज़र वीडियो टैग का समर्थन नहीं करता।
+                                </video>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p style="color: #666; font-weight: lighter;">स्थान: {{ article.location_text }}</p>
+                    <p style="color: #666; font-weight: lighter;">तारीख और समय: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
+                </article>
+            {% endfor %}
+        {% else %}
+            <p>इस श्रेणी के कोई लेख उपलब्ध नहीं हैं।</p>
+        {% endif %}
+    </div>
 {% endblock %}
