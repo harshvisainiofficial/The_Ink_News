@@ -9,11 +9,11 @@
         {% for epaper in epapers %}
             <article class="epaper-article">
                 <img src="{{ epaper.image_url }}" alt="Epaper Image" class="news-image">
-                <p>Uploaded on: {{ epaper.uploaded_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                <p>तारीख और समय: {{ epaper.uploaded_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
             </article>
         {% endfor %}
     {% else %}
-        <p>कोई ई-पेपर उपलब्ध नहीं है। कृपया बाद में पुनः प्रयास करें।</p>
+        <p>कोई ई-पेपर उपलब्ध नहीं है।</p>
     {% endif %}
 </section>
 {% endblock %}
