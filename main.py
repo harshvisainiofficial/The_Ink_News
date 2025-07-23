@@ -49,6 +49,14 @@ class Advertisement(db.Model):
     news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=True)
     news = db.relationship('News', backref='advertisements')
 
+class Epapers(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_url = db.Column(db.String(200), nullable=False)
+    uploaded_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=True)
+    head_approved = db.Column(db.Boolean, nullable=False, default=False)
+    admin = db.relationship('Admin', backref='epapers')
+
 @app.route('/')
 def index():
     try:
@@ -199,11 +207,15 @@ def webstory():
 @app.route('/epaper')
 def epaper():
     try:
+        epapers = Epapers.query.filter_by(head_approved=True).order_by(Epapers.uploaded_at.desc()).all()
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
-        return render_template('epaper.html', ad=ad)
+        print(f"Epaper Route - Epapers Fetched: {len(epapers)}")
+        for epaper in epapers:
+            print(f" - ID: {epaper.id}, Image URL: {epaper.image_url}, Uploaded At: {epaper.uploaded_at}")
+        return render_template('epaper.html', epapers=epapers, ad=ad)
     except Exception as e:
         print(f"Error querying epaper page: {e}")
-        return render_template('epaper.html', ad=None)
+        return render_template('epaper.html', epapers=[], ad=None)
 
 @app.route('/live-news')
 def live_news():
