@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
+import requests
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
@@ -57,6 +58,29 @@ class Epapers(db.Model):
     head_approved = db.Column(db.Boolean, nullable=False, default=False)
     admin = db.relationship('Admin', backref='epapers')
 
+# PushEngage Configuration
+PUSHENGAGE_API_KEY = 'YOUR_PUSHENGAGE_API_KEY'
+PUSHENGAGE_API_URL = 'https://api.pushengage.com/v4.0/notifications'
+
+def send_push_notification(title, body, url):
+    headers = {
+        'Authorization': f'Bearer {PUSHENGAGE_API_KEY}',
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        'title': title,
+        'message': body,
+        'url': url,
+        'icon': 'https://res.cloudinary.com/dmvfrdzrl/image/upload/v1752772701/SharedUploads/ink-news-logo.png?f_auto,q_auto'
+    }
+    try:
+        response = requests.post(PUSHENGAGE_API_URL, json=payload, headers=headers)
+        response.raise_for_status()
+        print(f"Push notification sent: {title}")
+    except requests.RequestException as e:
+        print(f"Error sending push notification: {e}")
+
+# Routes
 @app.route('/')
 def index():
     try:
@@ -239,3 +263,56 @@ def news_detail(id):
     except Exception as e:
         print(f"Error querying news: {e}")
         return "Error loading news article.", 500
+
+# Sample Admin Route to Add News (replace with your actual admin logic)
+@app.route('/add_news', methods=['POST'])
+def add_news():
+    try:
+        data = request.get_json() or request.form
+        title = data.get('title')
+        category = data.get('category')
+        location = data.get('location', '')
+        location_text = data.get('location_text', '')
+        blocks = data.get('content_blocks', [])
+        head_approved = data.get('head_approved', False)
+        admin_id = data.get('admin_id')  # Assume admin is authenticated
+
+        if not title or not category:
+            return jsonify({'status': 'error', 'message': 'Title and category are required'}), 400
+
+        # Create News article
+        news = News(
+            title=title,
+            category=category,
+            location=location,
+            location_text=location_text,
+            head_approved=bool(head_approved),
+            admin_id=admin_id,
+            date_published=datetime.utcnow()
+        )
+        db.session.add(news)
+        db.session.flush()  # Get news.id before commit
+
+        # Add Content Blocks
+        for index, block in enumerate(blocks):
+            content_block = ContentBlock(
+                news_id=news.id,
+                block_type=block.get('block_type', 'text'),
+                content=block.get('content'),
+                order_index=index
+            )
+            db.session.add(content_block)
+
+        db.session.commit()
+
+        # Send push notification if head_approved
+        if news.head_approved:
+            article_url = f"{request.url_root}news/{news.id}"
+            body = next((block.content for block in blocks if block.get('block_type') == 'text'), title)[:100] + "..."
+            send_push_notification(title, body, article_url)
+
+        return jsonify({'status': 'success', 'news_id': news.id})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error adding news: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
