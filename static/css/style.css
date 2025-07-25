@@ -225,6 +225,11 @@ header {
     margin-top: 10px;
 }
 
+/* Justify text content in news articles (excluding titles and subheadings) */
+.article-content p {
+    text-align: justify;
+}
+
 /* Share Pop-up */
 .share-popup {
     display: none;
