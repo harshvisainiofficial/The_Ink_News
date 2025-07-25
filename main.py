@@ -5,8 +5,12 @@ from datetime import datetime
 import requests
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql+psycopg://')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'connect_args': {'application_name': 'the_ink_news'},
+    'pool_pre_ping': True
+}
 
 db = SQLAlchemy(app)
 
@@ -59,7 +63,7 @@ class Epapers(db.Model):
     admin = db.relationship('Admin', backref='epapers')
 
 # PushEngage Configuration
-PUSHENGAGE_API_KEY = 'YOUR_PUSHENGAGE_API_KEY'
+PUSHENGAGE_API_KEY = os.environ.get('PUSHENGAGE_API_KEY', 'YOUR_PUSHENGAGE_API_KEY')
 PUSHENGAGE_API_URL = 'https://api.pushengage.com/v4.0/notifications'
 
 def send_push_notification(title, body, url):
