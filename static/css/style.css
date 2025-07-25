@@ -226,8 +226,8 @@ header {
 }
 
 /* Justify text content in news articles (excluding titles and subheadings) */
-.article-content p, .content-blocks p {
-    text-align: justify;
+.news-articles .article-content p, .news-article .article-content p {
+    text-align: justify !important;
 }
 
 /* Share Pop-up */
