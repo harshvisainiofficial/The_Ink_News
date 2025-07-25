@@ -221,12 +221,12 @@ header {
     text-decoration: underline;
 }
 
-.article-content {
+.article-content, .content-blocks {
     margin-top: 10px;
 }
 
 /* Justify text content in news articles (excluding titles and subheadings) */
-.article-content p {
+.article-content p, .content-blocks p {
     text-align: justify;
 }
 
