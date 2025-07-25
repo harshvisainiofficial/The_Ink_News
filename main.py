@@ -3,6 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
 import requests
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
@@ -12,7 +17,21 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_pre_ping': True
 }
 
-db = SQLAlchemy(app)
+try:
+    db = SQLAlchemy(app)
+    logger.info("SQLAlchemy initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize SQLAlchemy: {e}")
+    raise
+
+# Initialize database tables
+with app.app_context():
+    try:
+        db.create_all()
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Failed to create database tables: {e}")
+        raise
 
 # Models
 class Admin(db.Model):
@@ -80,9 +99,9 @@ def send_push_notification(title, body, url):
     try:
         response = requests.post(PUSHENGAGE_API_URL, json=payload, headers=headers)
         response.raise_for_status()
-        print(f"Push notification sent: {title}")
+        logger.info(f"Push notification sent: {title}")
     except requests.RequestException as e:
-        print(f"Error sending push notification: {e}")
+        logger.error(f"Error sending push notification: {e}")
 
 # Routes
 @app.route('/')
@@ -90,27 +109,28 @@ def index():
     try:
         news_articles = News.query.filter_by(head_approved=True).order_by(News.date_published.desc()).all()
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
-        print(f"Index Route - Articles Fetched: {len(news_articles)}")
+        logger.info(f"Index Route - Articles Fetched: {len(news_articles)}")
         for article in news_articles:
-            print(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
+            logger.debug(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
         return render_template('index.html', news_articles=news_articles, ad=ad)
     except Exception as e:
-        print(f"Error querying database in index: {e}")
-        return render_template('index.html', news_articles=[], ad=None)
+        logger.error(f"Error in index route: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
 @app.route('/article/<int:id>')
 def article(id):
     try:
         news = News.query.get_or_404(id)
         if not news.head_approved:
+            logger.warning(f"Article {id} not approved")
             return "News article not found or not approved.", 404
         blocks = ContentBlock.query.filter_by(news_id=news.id).order_by(ContentBlock.order_index).all()
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
-        print(f"Article Route - ID: {id}, Title: {news.title}, Blocks: {len(blocks)}")
+        logger.info(f"Article Route - ID: {id}, Title: {news.title}, Blocks: {len(blocks)}")
         return render_template('article.html', news=news, blocks=blocks, ad=ad)
     except Exception as e:
-        print(f"Error querying article {id}: {e}")
-        return "Error loading article.", 500
+        logger.error(f"Error in article route {id}: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
 @app.route('/rajya-shehar')
 def rajya_shehar():
@@ -127,13 +147,13 @@ def rajya_shehar():
             News.location != ''
         ).distinct().all()
         all_locations = [loc[0] for loc in all_locations if loc[0]]
-        print(f"Rajya Shehar, Selected City: '{selected_city}', Available Cities in DB: {all_locations}")
-        print(f"All Head-Approved News Articles: {len(all_news)}")
+        logger.info(f"Rajya Shehar, Selected City: '{selected_city}', Available Cities in DB: {all_locations}")
+        logger.debug(f"All Head-Approved News Articles: {len(all_news)}")
         for article in all_news:
-            print(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}, Head Approved: {article.head_approved}")
-        print(f"Filtered News Articles Found: {len(news_articles)}")
+            logger.debug(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}, Head Approved: {article.head_approved}")
+        logger.info(f"Filtered News Articles Found: {len(news_articles)}")
         for article in news_articles:
-            print(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}, Head Approved: {article.head_approved}")
+            logger.debug(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}, Head Approved: {article.head_approved}")
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
         return render_template('rajya-shehar.html', 
                               news_articles=news_articles, 
@@ -142,13 +162,8 @@ def rajya_shehar():
                               cities=cities, 
                               selected_city=selected_city)
     except Exception as e:
-        print(f"Error querying database for rajya-shehar: {e}")
-        return render_template('rajya-shehar.html', 
-                              news_articles=[], 
-                              ad=None, 
-                              selected_category='rajya-shehar', 
-                              cities=cities, 
-                              selected_city='')
+        logger.error(f"Error in rajya-shehar route: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
 @app.route('/category/<category>')
 def category(category):
@@ -162,9 +177,9 @@ def category(category):
         news_articles = query.order_by(News.date_published.desc()).all()
         cities = ['Bagar', 'Khetri', 'Bissau', 'Buhana', 'Chirawa', 'Gudhagorji', 'Jhunjhunu', 'Mandawa', 'Mukandgarh', 'Nawalgarh', 'Pilani', 'Surajgarh', 'Udaipurwati']
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
-        print(f"Category Route - Category: {category}, Articles Fetched: {len(news_articles)}")
+        logger.info(f"Category Route - Category: {category}, Articles Fetched: {len(news_articles)}")
         for article in news_articles:
-            print(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
+            logger.debug(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
         return render_template('index.html', 
                               news_articles=news_articles, 
                               ad=ad, 
@@ -172,13 +187,8 @@ def category(category):
                               cities=cities, 
                               selected_city=selected_city)
     except Exception as e:
-        print(f"Error querying database for category {category}: {e}")
-        return render_template('index.html', 
-                              news_articles=[], 
-                              ad=None, 
-                              selected_category=category, 
-                              cities=cities, 
-                              selected_city='')
+        logger.error(f"Error in category route {category}: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
 @app.route('/video')
 def video():
@@ -188,13 +198,13 @@ def video():
             News.id.in_(db.session.query(ContentBlock.news_id).filter(ContentBlock.block_type == 'video'))
         ).order_by(News.date_published.desc()).all()
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
-        print(f"Video Route - Articles Fetched: {len(news_articles)}")
+        logger.info(f"Video Route - Articles Fetched: {len(news_articles)}")
         for article in news_articles:
-            print(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
+            logger.debug(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
         return render_template('video.html', news_articles=news_articles, ad=ad)
     except Exception as e:
-        print(f"Error querying video articles: {e}")
-        return render_template('video.html', news_articles=[], ad=None)
+        logger.error(f"Error in video route: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
 @app.route('/search')
 def search():
@@ -214,61 +224,63 @@ def search():
                     )
                 )
             ).order_by(News.date_published.desc()).all()
-            print(f"Search Query: '{query}', Found Articles: {len(news_articles)}")
+            logger.info(f"Search Query: '{query}', Found Articles: {len(news_articles)}")
             for article in news_articles:
-                print(f" - ID: {article.id}, Title: {article.title}, Location Text: '{article.location_text}', Category: {article.category}")
+                logger.debug(f" - ID: {article.id}, Title: {article.title}, Location Text: '{article.location_text}', Category: {article.category}")
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
         return render_template('search.html', news_articles=news_articles, ad=ad, query=query)
     except Exception as e:
-        print(f"Error querying search: {e}")
-        return render_template('search.html', news_articles=[], ad=None, query=query)
+        logger.error(f"Error in search route: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
 @app.route('/webstory')
 def webstory():
     try:
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
+        logger.info("Webstory Route - Accessed")
         return render_template('webstory.html', ad=ad)
     except Exception as e:
-        print(f"Error querying webstory page: {e}")
-        return render_template('webstory.html', ad=None)
+        logger.error(f"Error in webstory route: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
 @app.route('/epaper')
 def epaper():
     try:
         epapers = Epapers.query.filter_by(head_approved=True).order_by(Epapers.uploaded_at.desc()).all()
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
-        print(f"Epaper Route - Epapers Fetched: {len(epapers)}")
+        logger.info(f"Epaper Route - Epapers Fetched: {len(epapers)}")
         for epaper in epapers:
-            print(f" - ID: {epaper.id}, Image URL: {epaper.image_url}, Uploaded At: {epaper.uploaded_at}")
+            logger.debug(f" - ID: {epaper.id}, Image URL: {epaper.image_url}, Uploaded At: {epaper.uploaded_at}")
         return render_template('epaper.html', epapers=epapers, ad=ad)
     except Exception as e:
-        print(f"Error querying epaper page: {e}")
-        return render_template('epaper.html', epapers=[], ad=None)
+        logger.error(f"Error in epaper route: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
 @app.route('/live-news')
 def live_news():
     try:
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
+        logger.info("Live News Route - Accessed")
         return render_template('live-news.html', ad=ad)
     except Exception as e:
-        print(f"Error querying live-news page: {e}")
-        return render_template('live-news.html', ad=None)
+        logger.error(f"Error in live-news route: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
 @app.route('/news/<int:id>')
 def news_detail(id):
     try:
         news = News.query.get_or_404(id)
         if not news.head_approved:
+            logger.warning(f"News {id} not approved")
             return "News article not found or not approved.", 404
         blocks = ContentBlock.query.filter_by(news_id=news.id).order_by(ContentBlock.order_index).all()
         ad = Advertisement.query.order_by(Advertisement.updated_at.desc()).first()
-        print(f"News Detail Route - ID: {id}, Title: {news.title}, Blocks: {len(blocks)}")
+        logger.info(f"News Detail Route - ID: {id}, Title: {news.title}, Blocks: {len(blocks)}")
         return render_template('news_detail.html', news=news, blocks=blocks, ad=ad, selected_category=news.category)
     except Exception as e:
-        print(f"Error querying news: {e}")
-        return "Error loading news article.", 500
+        logger.error(f"Error in news detail route {id}: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
-# Sample Admin Route to Add News (replace with your actual admin logic)
 @app.route('/add_news', methods=['POST'])
 def add_news():
     try:
@@ -282,6 +294,7 @@ def add_news():
         admin_id = data.get('admin_id')  # Assume admin is authenticated
 
         if not title or not category:
+            logger.warning("Missing title or category in add_news")
             return jsonify({'status': 'error', 'message': 'Title and category are required'}), 400
 
         # Create News article
@@ -308,6 +321,7 @@ def add_news():
             db.session.add(content_block)
 
         db.session.commit()
+        logger.info(f"News article added: ID {news.id}, Title: {news.title}")
 
         # Send push notification if head_approved
         if news.head_approved:
@@ -318,5 +332,5 @@ def add_news():
         return jsonify({'status': 'success', 'news_id': news.id})
     except Exception as e:
         db.session.rollback()
-        print(f"Error adding news: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        logger.error(f"Error in add_news route: {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': 'Internal Server Error'}), 500
