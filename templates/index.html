@@ -7,7 +7,7 @@
                 <article>
                     <div class="article-header">
                         <h3>{{ article.title }}</h3>
-                        <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, slug=article.title|replace(' ', '-')|lower, _external=True) }}" title="Share this article">↗</a>
+                        <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, slug=article.title|slugify, _external=True) }}" title="Share this article">↗</a>
                     </div>
                     {% if article.content_blocks %}
                         {% for block in article.content_blocks|sort(attribute='order_index') %}
@@ -27,7 +27,7 @@
                     {% endif %}
                     <p style="color: #666; font-weight: lighter;">स्थान: {{ article.location_text }}</p>
                     <p style="color: #666; font-weight: lighter;">तारीख और समय: {{ article.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
-                    <a href="{{ url_for('article', id=article.id, slug=article.title|replace(' ', '-')|lower) }}" class="read-more">और पढ़ें</a>
+                    <a href="{{ url_for('article', id=article.id, slug=article.title|slugify) }}" class="read-more">और पढ़ें</a>
                 </article>
             {% endfor %}
         {% else %}

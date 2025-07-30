@@ -2,6 +2,8 @@ from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
+from unidecode import unidecode
+import re
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
@@ -56,6 +58,15 @@ class Epapers(db.Model):
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=True)
     head_approved = db.Column(db.Boolean, nullable=False, default=False)
     admin = db.relationship('Admin', backref='epapers')
+
+def slugify(value):
+    value = str(value)
+    value = unidecode(value)  # Transliterate to Latin
+    value = re.sub(r'[^\w\s-]', '', value)  # Remove non-word characters
+    value = re.sub(r'[-\s]+', '-', value)   # Replace spaces/hyphens with single hyphen
+    return value.strip('-').lower()
+
+app.jinja_env.filters['slugify'] = slugify
 
 @app.route('/')
 def index():

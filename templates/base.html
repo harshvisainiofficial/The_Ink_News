@@ -89,7 +89,7 @@
                 <li>
                     <div style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
                         <a href="{{ url_for('rajya_shehar') }}" style="flex: 1;">राज्य शहर</a>
-                        <select onchange="if(this.value) window.location.href='{{ url_for('rajya_shehar') }}?city=' + encodeURIComponent(this.value)" style="margin-left: 10px; padding: 5px; font-size: 14px; border: 1px solid #eee; border-radius: 4px; width: 120px;">
+                        <select onchange="if(this.value) window.location.href='{{ url_for('rajya_shehar') }}?city=' + encodeURIComponent(this.value);" style="margin-left: 10px; padding: 5px; font-size: 14px; border: 1px solid #eee; border-radius: 4px; width: 120px;">
                             <option value="">सभी शहर</option>
                             {% for city in cities %}
                                 <option value="{{ city }}" {% if city == selected_city %}selected{% endif %}>{{ city }}</option>
@@ -113,7 +113,7 @@
                             <article>
                                 <div class="article-header">
                                     <h3>{{ article.title }}</h3>
-                                    <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, slug=article.title|replace(' ', '-')|lower, _external=True) }}" title="Share this article">↗</a>
+                                    <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, slug=article.title|slugify, _external=True) }}" title="Share this article">↗</a>
                                 </div>
                                 {% if article.content_blocks %}
                                     {% for block in article.content_blocks %}
@@ -127,7 +127,7 @@
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
-                                <a href="{{ url_for('article', id=article.id, slug=article.title|replace(' ', '-')|lower) }}" class="read-more">और पढ़ें</a>
+                                <a href="{{ url_for('article', id=article.id, slug=article.title|slugify) }}" class="read-more">और पढ़ें</a>
                             </article>
                         {% endfor %}
                     {% else %}
