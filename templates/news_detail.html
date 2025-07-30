@@ -6,7 +6,7 @@
             <article>
                 <div class="article-header">
                     <h3>{{ news.title }}</h3>
-                    <a href="#" class="share-icon" data-url="{{ url_for('article', id=news.id, _external=True) }}" title="Share this article">↗</a>
+                    <a href="#" class="share-icon" data-url="{{ url_for('article', id=news.id, slug=news.title|replace(' ', '-')|lower, _external=True) }}" title="Share this article">↗</a>
                 </div>
                 {% if blocks %}
                     {% for block in blocks %}

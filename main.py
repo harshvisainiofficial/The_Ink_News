@@ -70,8 +70,8 @@ def index():
         print(f"Error querying database in index: {e}")
         return render_template('index.html', news_articles=[], ad=None)
 
-@app.route('/article/<int:id>')
-def article(id):
+@app.route('/article/<int:id>-<slug>')
+def article(id, slug):
     try:
         news = News.query.get_or_404(id)
         if not news.head_approved:

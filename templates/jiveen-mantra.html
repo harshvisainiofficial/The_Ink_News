@@ -8,7 +8,7 @@
                 <article style="margin-bottom: 20px;">
                     <div class="article-header">
                         <h3 style="font-size: 1.8em; font-weight: bold;">{{ article.title | safe }}</h3>
-                        <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, _external=True) }}" title="Share this article">↗</a>
+                        <a href="#" class="share-icon" data-url="{{ url_for('article', id=article.id, slug=article.title|replace(' ', '-')|lower, _external=True) }}" title="Share this article">↗</a>
                     </div>
                     <div class="content-blocks">
                         {% for block in article.content_blocks|sort(attribute='order_index') %}
