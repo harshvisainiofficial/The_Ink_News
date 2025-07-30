@@ -294,6 +294,29 @@
         }
 
         function subscribeUser() {
+            // First check and request notification permission
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        performSubscription();
+                    } else {
+                        subscribeBtn.disabled = false;
+                        showPermissionPopup();
+                    }
+                });
+            } else if (Notification.permission === 'granted') {
+                performSubscription();
+            } else {
+                subscribeBtn.disabled = false;
+                showPermissionPopup();
+            }
+        }
+
+        function showPermissionPopup() {
+            alert('नोटिफिकेशन की अनुमति आवश्यक है!\n\nकृपया निम्नलिखित चरणों का पालन करें:\n\n1. ब्राउज़र के एड्रेस बार में लॉक (🔒) आइकन पर क्लिक करें\n2. "नोटिफिकेशन" या "Notifications" को "Allow" करें\n3. पेज को रिफ्रेश करें और फिर से सब्सक्राइब करने की कोशिश करें\n\nयदि समस्या बनी रहे, तो ब्राउज़र सेटिंग्स में जाकर इस साइट के लिए नोटिफिकेशन की अनुमति दें।');
+        }
+
+        function performSubscription() {
             const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
             swRegistration.pushManager.subscribe({
                 userVisibleOnly: true,
@@ -305,19 +328,24 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        isSubscribed = true;
                         updateBtn();
                         alert('सफलतापूर्वक सब्सक्राइब हो गए! अब आपको नई खबरों की सूचना मिलेगी।');
                     } else {
                         console.error('Failed to subscribe on server:', data.message);
+                        subscribeBtn.disabled = false;
+                        alert('सर्वर में समस्या हुई। कृपया फिर से कोशिश करें।');
                     }
                 })
                 .catch(error => {
                     console.error('Error updating subscription on server:', error);
+                    subscribeBtn.disabled = false;
+                    alert('सर्वर से कनेक्शन में समस्या। कृपया फिर से कोशिश करें।');
                 });
-                isSubscribed = true;
             })
             .catch(function(err) {
                 console.log('Failed to subscribe the user: ', err);
+                subscribeBtn.disabled = false;
                 alert('सब्सक्रिप्शन में समस्या हुई। कृपया फिर से कोशिश करें।');
             });
         }
@@ -332,7 +360,7 @@
                         if (data.success) {
                             return subscription.unsubscribe();
                         } else {
-                            throw new Error('Failed to unsubscribe on server');
+                            throw new Error('Failed to unsubscribe on server: ' + data.message);
                         }
                     })
                     .then(function(successful) {
@@ -343,41 +371,85 @@
                     })
                     .catch(function(error) {
                         console.log('Error unsubscribing', error);
+                        subscribeBtn.disabled = false;
+                        alert('अनसब्सक्राइब करने में समस्या हुई। कृपया फिर से कोशिश करें।');
                     });
+                } else {
+                    // No active subscription found
+                    isSubscribed = false;
+                    updateBtn();
+                    alert('कोई सक्रिय सब्सक्रिप्शन नहीं मिली।');
                 }
+            })
+            .catch(function(error) {
+                console.log('Error getting subscription', error);
+                subscribeBtn.disabled = false;
+                alert('सब्सक्रिप्शन की जांच में समस्या हुई।');
             });
         }
 
         function updateBtn() {
-            if (Notification.permission === 'denied') {
-                subscribeBtn.textContent = '🔕 ब्लॉक्ड';
-                subscribeBtn.disabled = true;
-                return;
-            }
-
             if (isSubscribed) {
-                subscribeBtn.textContent = '🔔 सब्सक्राइब्ड';
+                subscribeBtn.textContent = '🔔 सब्सक्राइब्ड - अनसब्सक्राइब करें';
+                subscribeBtn.onclick = function() {
+                    subscribeBtn.disabled = true;
+                    unsubscribeUser();
+                };
             } else {
-                subscribeBtn.textContent = '🔔 सब्सक्राइब';
+                subscribeBtn.textContent = '🔔 सब्सक्राइब करें';
+                subscribeBtn.onclick = function() {
+                    subscribeBtn.disabled = true;
+                    subscribeUser();
+                };
             }
 
             subscribeBtn.disabled = false;
         }
 
-        function initializeUI() {
-            subscribeBtn.addEventListener('click', function() {
-                subscribeBtn.disabled = true;
-                if (isSubscribed) {
-                    unsubscribeUser();
-                } else {
-                    subscribeUser();
-                }
+        function checkSubscriptionStatus(subscription) {
+            return fetch('/check-subscription', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    endpoint: subscription.endpoint
+                })
             });
+        }
 
+        function initializeUI() {
             // Set the initial subscription value
             swRegistration.pushManager.getSubscription()
             .then(function(subscription) {
-                isSubscribed = !(subscription === null);
+                if (subscription) {
+                    // Check with server if subscription is still active
+                    checkSubscriptionStatus(subscription)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.subscribed) {
+                            isSubscribed = true;
+                        } else {
+                            // Subscription not active on server, clean up locally
+                            subscription.unsubscribe().catch(err => console.log('Error unsubscribing:', err));
+                            isSubscribed = false;
+                        }
+                        updateBtn();
+                    })
+                    .catch(error => {
+                        console.log('Error checking subscription status:', error);
+                        // Assume not subscribed if server check fails
+                        isSubscribed = false;
+                        updateBtn();
+                    });
+                } else {
+                    isSubscribed = false;
+                    updateBtn();
+                }
+            })
+            .catch(function(error) {
+                console.log('Error getting subscription:', error);
+                isSubscribed = false;
                 updateBtn();
             });
         }

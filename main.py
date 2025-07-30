@@ -376,6 +376,25 @@ def unsubscribe():
         print(f"Error unsubscribing user: {e}")
         return jsonify({'success': False, 'message': 'Failed to unsubscribe'}), 500
 
+@app.route('/check-subscription', methods=['POST'])
+def check_subscription():
+    """Check if a subscription endpoint is active"""
+    try:
+        data = request.get_json()
+        endpoint = data.get('endpoint')
+        
+        if not endpoint:
+            return jsonify({'success': False, 'message': 'Invalid endpoint'}), 400
+        
+        subscriber = Subscriber.query.filter_by(endpoint=endpoint, is_active=True).first()
+        if subscriber:
+            return jsonify({'success': True, 'subscribed': True, 'message': 'Subscription is active'})
+        else:
+            return jsonify({'success': True, 'subscribed': False, 'message': 'No active subscription found'})
+    except Exception as e:
+        print(f"Error checking subscription: {e}")
+        return jsonify({'success': False, 'message': 'Failed to check subscription'}), 500
+
 @app.route('/send-test-notification')
 def send_test_notification():
     """Send a test notification to all subscribers"""
