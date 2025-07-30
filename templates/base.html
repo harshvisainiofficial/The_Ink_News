@@ -327,16 +327,29 @@
         }
 
         function performSubscription() {
+            console.log('Starting subscription process...');
             const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
+            console.log('Application server key converted:', applicationServerKey);
+            
             swRegistration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: applicationServerKey
             })
             .then(function(subscription) {
-                console.log('User is subscribed.');
+                console.log('User is subscribed:', subscription);
+                console.log('Subscription endpoint:', subscription.endpoint);
+                console.log('Subscription keys:', {
+                    p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh')))),
+                    auth: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth'))))
+                });
+                
                 updateSubscriptionOnServer(subscription, 'POST')
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Server response status:', response.status);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Server response data:', data);
                     if (data.success) {
                         isSubscribed = true;
                         updateBtn();

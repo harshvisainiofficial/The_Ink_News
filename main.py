@@ -86,16 +86,25 @@ VAPID_CLAIMS = {
     "sub": "mailto:admin@theinknews.com"
 }
 
-def send_notification_to_subscribers(title, body, url):
+def send_notification_to_subscribers(title, body, url, image=None):
     """Send push notification to all active subscribers"""
     try:
         subscribers = Subscriber.query.filter_by(is_active=True).all()
+        print(f"Found {len(subscribers)} active subscribers")
         
+        # Enhanced notification data with more fields for better mobile support
         notification_data = {
             "title": title,
             "body": body,
-            "url": url
+            "url": url,
+            "image": image,
+            "timestamp": datetime.utcnow().isoformat(),
+            "requireInteraction": True,
+            "silent": False
         }
+        
+        success_count = 0
+        failure_count = 0
         
         for subscriber in subscribers:
             try:
@@ -107,36 +116,63 @@ def send_notification_to_subscribers(title, body, url):
                     }
                 }
                 
+                print(f"Sending notification to subscriber {subscriber.id} at endpoint: {subscriber.endpoint[:30]}...")
+                
+                # Add TTL for better mobile delivery
                 webpush(
                     subscription_info=subscription_info,
                     data=json.dumps(notification_data),
                     vapid_private_key=VAPID_PRIVATE_KEY,
-                    vapid_claims=VAPID_CLAIMS
+                    vapid_claims=VAPID_CLAIMS,
+                    ttl=86400  # 24 hours
                 )
-                print(f"Notification sent to subscriber {subscriber.id}")
+                print(f"✅ Notification successfully sent to subscriber {subscriber.id}")
+                success_count += 1
                 
             except WebPushException as ex:
-                print(f"Failed to send notification to subscriber {subscriber.id}: {ex}")
+                failure_count += 1
+                print(f"❌ Failed to send notification to subscriber {subscriber.id}: {ex}")
+                print(f"Subscription details: {subscription_info}")
+                
                 # If the subscription is invalid, deactivate it
                 if ex.response and ex.response.status_code in [400, 404, 410]:
+                    print(f"Deactivating invalid subscription for subscriber {subscriber.id}")
                     subscriber.is_active = False
                     db.session.commit()
+                
+                # Print full exception details for debugging
+                import traceback
+                traceback.print_exc()
+                    
+        print(f"Notification sending complete: {success_count} successful, {failure_count} failed")
+        return success_count, failure_count
                     
     except Exception as e:
         print(f"Error sending notifications: {e}")
+        import traceback
+        traceback.print_exc()
+        return 0, 0
 
 def auto_notify_new_news(news_id):
     """Automatically send notification when news is approved"""
     try:
         news = News.query.get(news_id)
         if news and news.head_approved:
+            # Get the first image from content blocks
+            first_image = None
+            content_blocks = ContentBlock.query.filter_by(news_id=news_id).order_by(ContentBlock.order_index).all()
+            for block in content_blocks:
+                if block.block_type == 'image' and block.content:
+                    first_image = block.content
+                    break
+            
             # Create notification title and body
             title = "🔥 नई खबर - The Ink News"
             body = f"{news.title[:100]}{'...' if len(news.title) > 100 else ''}"
             url = f"/article/{news.id}-{slugify(news.title)}"
             
-            # Send notification to all subscribers
-            send_notification_to_subscribers(title, body, url)
+            # Send notification to all subscribers with image
+            send_notification_to_subscribers(title, body, url, first_image)
             print(f"Auto notification sent for news ID: {news_id}")
     except Exception as e:
         print(f"Error in auto notification for news {news_id}: {e}")
@@ -328,21 +364,30 @@ def news_detail(id):
 def subscribe():
     try:
         data = request.get_json()
+        print(f"Subscription request received: {data}")
+        
         endpoint = data.get('endpoint')
         keys = data.get('keys', {})
         p256dh = keys.get('p256dh')
         auth = keys.get('auth')
         
+        print(f"Endpoint: {endpoint[:50]}..." if endpoint else "No endpoint")
+        print(f"P256DH key: {p256dh[:20]}..." if p256dh else "No P256DH key")
+        print(f"Auth key: {auth[:20]}..." if auth else "No Auth key")
+        
         if not endpoint or not p256dh or not auth:
+            print("Invalid subscription data - missing required fields")
             return jsonify({'success': False, 'message': 'Invalid subscription data'}), 400
         
         # Check if already subscribed
         existing = Subscriber.query.filter_by(endpoint=endpoint).first()
         if existing:
+            print(f"Updating existing subscriber: {existing.id}")
             existing.is_active = True
             existing.p256dh_key = p256dh
             existing.auth_key = auth
         else:
+            print("Creating new subscriber")
             subscriber = Subscriber(
                 endpoint=endpoint,
                 p256dh_key=p256dh,
@@ -351,9 +396,16 @@ def subscribe():
             db.session.add(subscriber)
         
         db.session.commit()
+        
+        # Verify the subscription was saved
+        total_subscribers = Subscriber.query.filter_by(is_active=True).count()
+        print(f"Subscription successful! Total active subscribers: {total_subscribers}")
+        
         return jsonify({'success': True, 'message': 'Successfully subscribed to notifications'})
     except Exception as e:
         print(f"Error subscribing user: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'message': 'Failed to subscribe'}), 500
 
 @app.route('/unsubscribe', methods=['POST'])
@@ -399,22 +451,65 @@ def check_subscription():
 def send_test_notification():
     """Send a test notification to all subscribers"""
     try:
-        # Get the latest news article
-        latest_news = News.query.filter_by(head_approved=True).order_by(News.date_published.desc()).first()
+        print("Sending test notification to all active subscribers")
         
-        if latest_news:
-            title = "नई खबर: " + latest_news.title
-            body = "द इंक न्यूज़ पर नई खबर उपलब्ध है। पढ़ने के लिए क्लिक करें।"
-            url = f"/article/{latest_news.id}-{slugify(latest_news.title)}"
-            
-            send_notification_to_subscribers(title, body, url)
-            return jsonify({'success': True, 'message': 'Test notification sent successfully'})
-        else:
-            return jsonify({'success': False, 'message': 'No approved news found'}), 404
-            
+        # Test with a sample image
+        test_image = "https://res.cloudinary.com/dmvfrdzrl/image/upload/v1752772701/SharedUploads/ink-news-logo.png?f_auto,q_auto"
+        
+        # Send a simple test notification
+        result = send_notification_to_subscribers(
+            title="🔔 Test Notification - The Ink News",
+            body="यह एक टेस्ट नोटिफिकेशन है। अगर आपको यह दिख रहा है तो नोटिफिकेशन सिस्टम काम कर रहा है!",
+            url="/",
+            image=test_image
+        )
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Test notification sent successfully',
+            'result': result
+        })
     except Exception as e:
         print(f"Error sending test notification: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'message': 'Failed to send test notification'}), 500
+
+@app.route('/add-test-subscriber')
+def add_test_subscriber():
+    """Add a test subscriber for debugging"""
+    try:
+        # Create a dummy subscriber for testing
+        test_subscriber = Subscriber(
+            endpoint="https://fcm.googleapis.com/fcm/send/test-endpoint-123",
+            p256dh_key="test-p256dh-key",
+            auth_key="test-auth-key"
+        )
+        
+        # Check if test subscriber already exists
+        existing = Subscriber.query.filter_by(endpoint=test_subscriber.endpoint).first()
+        if not existing:
+            db.session.add(test_subscriber)
+            db.session.commit()
+            message = "Test subscriber added successfully"
+        else:
+            existing.is_active = True
+            db.session.commit()
+            message = "Test subscriber already exists and activated"
+        
+        total_subscribers = Subscriber.query.filter_by(is_active=True).count()
+        print(f"Test subscriber operation complete. Total active subscribers: {total_subscribers}")
+        
+        return jsonify({
+            'success': True, 
+            'message': message,
+            'total_subscribers': total_subscribers
+        })
+    except Exception as e:
+        print(f"Error adding test subscriber: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': 'Failed to add test subscriber'}), 500
 
 @app.route('/notify-new-news', methods=['POST'])
 def notify_new_news():
