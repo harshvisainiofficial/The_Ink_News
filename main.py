@@ -257,7 +257,18 @@ def category(category):
         print(f"Category Route - Category: {category}, Articles Fetched: {len(news_articles)}")
         for article in news_articles:
             print(f" - ID: {article.id}, Title: {article.title}, Location: '{article.location}', Category: {article.category}")
-        return render_template('index.html', 
+        # Map categories to their specific templates
+        template_map = {
+            'business': 'business.html',
+            'cricket': 'cricket.html',
+            'sports': 'sports.html',
+            'jiveen-mantra': 'jiveen-mantra.html',
+            'the-ink-khas': 'the-ink-khas.html',
+            'top-news': 'top-news.html'
+        }
+        
+        template_name = template_map.get(category, 'index.html')
+        return render_template(template_name, 
                               news_articles=news_articles, 
                               ad=ad, 
                               selected_category=category, 
@@ -265,7 +276,18 @@ def category(category):
                               selected_city=selected_city)
     except Exception as e:
         print(f"Error querying database for category {category}: {e}")
-        return render_template('index.html', 
+        # Map categories to their specific templates
+        template_map = {
+            'business': 'business.html',
+            'cricket': 'cricket.html',
+            'sports': 'sports.html',
+            'jiveen-mantra': 'jiveen-mantra.html',
+            'the-ink-khas': 'the-ink-khas.html',
+            'top-news': 'top-news.html'
+        }
+        
+        template_name = template_map.get(category, 'index.html')
+        return render_template(template_name, 
                               news_articles=[], 
                               ad=None, 
                               selected_category=category, 
