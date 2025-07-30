@@ -128,11 +128,11 @@
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
-                                <a href="{{ url_for('article', id=article.id, slug=article.title|slugify) }}" class="read-more">और पढ़ें</a>
+                
                             </article>
                         {% endfor %}
                     {% else %}
-                        <p>कोई लेख उपलब्ध नहीं है। कृपया डेटाबेस में 'head_approved=True' लेखों की जाँच करें।</p>
+                        <p>कोई लेख उपलब्ध नहीं है।</p>
                     {% endif %}
                 </section>
             {% endblock %}

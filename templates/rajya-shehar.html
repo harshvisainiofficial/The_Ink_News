@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% block title %}द इंक न्यूज़ - राज्य शहर{% endblock %}
+{% block title %}द इंक न्यूज़ - राज्य शहर{% endblock %}
 {% block content %}
+    <h2>राज्य शहर</h2>
     <section class="news-articles">
         {% if news_articles %}
             {% for article in news_articles %}
@@ -30,7 +31,7 @@
                 </article>
             {% endfor %}
         {% else %}
-            <p>कोई लेख उपलब्ध नहीं है। कृपया डेटाबेस में 'head_approved=True' लेखों की जाँच करें।</p>
+            <p>कोई लेख उपलब्ध नहीं है।</p>
         {% endif %}
     </section>
 {% endblock %}

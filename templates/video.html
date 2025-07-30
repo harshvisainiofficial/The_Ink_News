@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% block title %}द इंक न्यूज़ - वीडियो{% endblock %}
+{% block title %}द इंक न्यूज़ - वीडियो{% endblock %}
 {% block content %}
+    <h2>वीडियो</h2>
     <section class="news-articles">
         {% if news_articles %}
             {% for article in news_articles %}
@@ -26,11 +27,11 @@
                             {% endif %}
                         {% endfor %}
                     {% endif %}
-                    <a href="{{ url_for('article', id=article.id) }}" class="read-more">और पढ़ें</a>
+
                 </article>
             {% endfor %}
         {% else %}
-            <p>कोई वीडियो लेख उपलब्ध नहीं है। </p>
+            <p>कोई लेख उपलब्ध नहीं है।</p>
         {% endif %}
     </section>
 {% endblock %}
