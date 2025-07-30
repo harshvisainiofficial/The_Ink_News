@@ -11,17 +11,29 @@
         <meta property="og:title" content="{{ news.title | safe }}">
         {% set ns = namespace(first_image=None, first_video=None) %}
         {% for block in news.content_blocks %}
-            {% if not ns.first_image and block.block_type == 'image' %}
+            {% if not ns.first_image and block.block_type == 'image' and (block.content.lower().endswith('.jpg') or block.content.lower().endswith('.jpeg') or block.content.lower().endswith('.png')) %}
                 {% set ns.first_image = block %}
             {% endif %}
             {% if not ns.first_video and block.block_type == 'video' %}
                 {% set ns.first_video = block %}
             {% endif %}
         {% endfor %}
+        {% set domain = 'https://theinknews.com' %} {# Change to your actual domain if needed #}
         {% if ns.first_image %}
-            <meta property="og:image" content="{{ ns.first_image.content | safe }}">
+            {% set image_url = ns.first_image.content %}
+            {% if not (image_url.startswith('http://') or image_url.startswith('https://')) %}
+                {% set image_url = domain ~ image_url %}
+            {% endif %}
+            {% if not (image_url.lower().endswith('.jpg') or image_url.lower().endswith('.jpeg') or image_url.lower().endswith('.png')) %}
+                {% set image_url = image_url ~ '.jpg' %}
+            {% endif %}
+            <meta property="og:image" content="{{ image_url }}">
         {% elif ns.first_video %}
-            <meta property="og:image" content="{{ ns.first_video.content | safe }}">
+            {% set video_url = ns.first_video.content %}
+            {% if not (video_url.startswith('http://') or video_url.startswith('https://')) %}
+                {% set video_url = domain ~ video_url %}
+            {% endif %}
+            <meta property="og:image" content="{{ video_url }}">
         {% else %}
             <meta property="og:image" content="https://res.cloudinary.com/dmvfrdzrl/image/upload/v1752772701/SharedUploads/ink-news-logo.png?f_auto,q_auto">
         {% endif %}
