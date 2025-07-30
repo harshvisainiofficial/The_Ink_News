@@ -69,6 +69,7 @@
                     <li><a href="{{ url_for('video') }}">वीडियो</a></li>
                     <li><a href="{{ url_for('search') }}">खोज</a></li>
                     <li><a href="{{ url_for('epaper') }}">ई-पेपर</a></li>
+                    <li><button id="subscribe-btn" class="subscribe-btn">🔔 सब्सक्राइब</button></li>
                 </ul>
             </nav>
         </div>
@@ -250,6 +251,154 @@
                 sharePopup.style.display = 'none';
             }
         });
+
+        // Push Notification Subscription Logic
+        const subscribeBtn = document.getElementById('subscribe-btn');
+        let isSubscribed = false;
+        let swRegistration = null;
+
+        // VAPID public key (you'll need to generate this)
+        const applicationServerPublicKey = 'BEl62iUYgUivxIkv69yViEuiBIa40HdHSWgMfHXPJeuNiJ7Ek00jVNPSyeQX-QbVFPLwqyBFWAlVfY9OCLXiAiA';
+
+        function urlB64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        function updateSubscriptionOnServer(subscription, method) {
+            const endpoint = method === 'POST' ? '/subscribe' : '/unsubscribe';
+            
+            return fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    endpoint: subscription.endpoint,
+                    keys: {
+                        p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh')))),
+                        auth: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth'))))
+                    }
+                })
+            });
+        }
+
+        function subscribeUser() {
+            const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
+            swRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: applicationServerKey
+            })
+            .then(function(subscription) {
+                console.log('User is subscribed.');
+                updateSubscriptionOnServer(subscription, 'POST')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateBtn();
+                        alert('सफलतापूर्वक सब्सक्राइब हो गए! अब आपको नई खबरों की सूचना मिलेगी।');
+                    } else {
+                        console.error('Failed to subscribe on server:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating subscription on server:', error);
+                });
+                isSubscribed = true;
+            })
+            .catch(function(err) {
+                console.log('Failed to subscribe the user: ', err);
+                alert('सब्सक्रिप्शन में समस्या हुई। कृपया फिर से कोशिश करें।');
+            });
+        }
+
+        function unsubscribeUser() {
+            swRegistration.pushManager.getSubscription()
+            .then(function(subscription) {
+                if (subscription) {
+                    updateSubscriptionOnServer(subscription, 'DELETE')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            return subscription.unsubscribe();
+                        } else {
+                            throw new Error('Failed to unsubscribe on server');
+                        }
+                    })
+                    .then(function(successful) {
+                        console.log('User is unsubscribed.');
+                        isSubscribed = false;
+                        updateBtn();
+                        alert('सफलतापूर्वक अनसब्सक्राइब हो गए।');
+                    })
+                    .catch(function(error) {
+                        console.log('Error unsubscribing', error);
+                    });
+                }
+            });
+        }
+
+        function updateBtn() {
+            if (Notification.permission === 'denied') {
+                subscribeBtn.textContent = '🔕 ब्लॉक्ड';
+                subscribeBtn.disabled = true;
+                return;
+            }
+
+            if (isSubscribed) {
+                subscribeBtn.textContent = '🔔 सब्सक्राइब्ड';
+            } else {
+                subscribeBtn.textContent = '🔔 सब्सक्राइब';
+            }
+
+            subscribeBtn.disabled = false;
+        }
+
+        function initializeUI() {
+            subscribeBtn.addEventListener('click', function() {
+                subscribeBtn.disabled = true;
+                if (isSubscribed) {
+                    unsubscribeUser();
+                } else {
+                    subscribeUser();
+                }
+            });
+
+            // Set the initial subscription value
+            swRegistration.pushManager.getSubscription()
+            .then(function(subscription) {
+                isSubscribed = !(subscription === null);
+                updateBtn();
+            });
+        }
+
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            console.log('Service Worker and Push is supported');
+
+            navigator.serviceWorker.register('/static/sw.js')
+            .then(function(swReg) {
+                console.log('Service Worker is registered', swReg);
+                swRegistration = swReg;
+                initializeUI();
+            })
+            .catch(function(error) {
+                console.error('Service Worker Error', error);
+            });
+        } else {
+            console.warn('Push messaging is not supported');
+            subscribeBtn.textContent = 'असमर्थित';
+            subscribeBtn.disabled = true;
+        }
     </script>
 </body>
 </html>

@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
 from unidecode import unidecode
 import re
+import json
+from pywebpush import webpush, WebPushException
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
@@ -59,6 +61,14 @@ class Epapers(db.Model):
     head_approved = db.Column(db.Boolean, nullable=False, default=False)
     admin = db.relationship('Admin', backref='epapers')
 
+class Subscriber(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    endpoint = db.Column(db.Text, nullable=False, unique=True)
+    p256dh_key = db.Column(db.Text, nullable=False)
+    auth_key = db.Column(db.Text, nullable=False)
+    subscribed_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+
 def slugify(value):
     value = str(value)
     value = unidecode(value)  # Transliterate to Latin
@@ -67,6 +77,53 @@ def slugify(value):
     return value.strip('-').lower()
 
 app.jinja_env.filters['slugify'] = slugify
+
+# VAPID Configuration (You should generate your own keys)
+# Generate keys using: webpush.generate_vapid_keys()
+VAPID_PRIVATE_KEY = "your-private-key-here"
+VAPID_PUBLIC_KEY = "BEl62iUYgUivxIkv69yViEuiBIa40HdHSWgMfHXPJeuNiJ7Ek00jVNPSyeQX-QbVFPLwqyBFWAlVfY9OCLXiAiA"
+VAPID_CLAIMS = {
+    "sub": "mailto:admin@theinknews.com"
+}
+
+def send_notification_to_subscribers(title, body, url):
+    """Send push notification to all active subscribers"""
+    try:
+        subscribers = Subscriber.query.filter_by(is_active=True).all()
+        
+        notification_data = {
+            "title": title,
+            "body": body,
+            "url": url
+        }
+        
+        for subscriber in subscribers:
+            try:
+                subscription_info = {
+                    "endpoint": subscriber.endpoint,
+                    "keys": {
+                        "p256dh": subscriber.p256dh_key,
+                        "auth": subscriber.auth_key
+                    }
+                }
+                
+                webpush(
+                    subscription_info=subscription_info,
+                    data=json.dumps(notification_data),
+                    vapid_private_key=VAPID_PRIVATE_KEY,
+                    vapid_claims=VAPID_CLAIMS
+                )
+                print(f"Notification sent to subscriber {subscriber.id}")
+                
+            except WebPushException as ex:
+                print(f"Failed to send notification to subscriber {subscriber.id}: {ex}")
+                # If the subscription is invalid, deactivate it
+                if ex.response and ex.response.status_code in [400, 404, 410]:
+                    subscriber.is_active = False
+                    db.session.commit()
+                    
+    except Exception as e:
+        print(f"Error sending notifications: {e}")
 
 @app.route('/')
 def index():
@@ -250,3 +307,106 @@ def news_detail(id):
     except Exception as e:
         print(f"Error querying news: {e}")
         return "Error loading news article.", 500
+
+@app.route('/subscribe', methods=['POST'])
+def subscribe():
+    try:
+        data = request.get_json()
+        endpoint = data.get('endpoint')
+        keys = data.get('keys', {})
+        p256dh = keys.get('p256dh')
+        auth = keys.get('auth')
+        
+        if not endpoint or not p256dh or not auth:
+            return jsonify({'success': False, 'message': 'Invalid subscription data'}), 400
+        
+        # Check if already subscribed
+        existing = Subscriber.query.filter_by(endpoint=endpoint).first()
+        if existing:
+            existing.is_active = True
+            existing.p256dh_key = p256dh
+            existing.auth_key = auth
+        else:
+            subscriber = Subscriber(
+                endpoint=endpoint,
+                p256dh_key=p256dh,
+                auth_key=auth
+            )
+            db.session.add(subscriber)
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Successfully subscribed to notifications'})
+    except Exception as e:
+        print(f"Error subscribing user: {e}")
+        return jsonify({'success': False, 'message': 'Failed to subscribe'}), 500
+
+@app.route('/unsubscribe', methods=['POST'])
+def unsubscribe():
+    try:
+        data = request.get_json()
+        endpoint = data.get('endpoint')
+        
+        if not endpoint:
+            return jsonify({'success': False, 'message': 'Invalid endpoint'}), 400
+        
+        subscriber = Subscriber.query.filter_by(endpoint=endpoint).first()
+        if subscriber:
+            subscriber.is_active = False
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Successfully unsubscribed'})
+        else:
+            return jsonify({'success': False, 'message': 'Subscription not found'}), 404
+    except Exception as e:
+        print(f"Error unsubscribing user: {e}")
+        return jsonify({'success': False, 'message': 'Failed to unsubscribe'}), 500
+
+@app.route('/send-test-notification')
+def send_test_notification():
+    """Send a test notification to all subscribers"""
+    try:
+        # Get the latest news article
+        latest_news = News.query.filter_by(head_approved=True).order_by(News.date_published.desc()).first()
+        
+        if latest_news:
+            title = "नई खबर: " + latest_news.title
+            body = "द इंक न्यूज़ पर नई खबर उपलब्ध है। पढ़ने के लिए क्लिक करें।"
+            url = f"/article/{latest_news.id}-{slugify(latest_news.title)}"
+            
+            send_notification_to_subscribers(title, body, url)
+            return jsonify({'success': True, 'message': 'Test notification sent successfully'})
+        else:
+            return jsonify({'success': False, 'message': 'No approved news found'}), 404
+            
+    except Exception as e:
+        print(f"Error sending test notification: {e}")
+        return jsonify({'success': False, 'message': 'Failed to send test notification'}), 500
+
+@app.route('/notify-new-news', methods=['POST'])
+def notify_new_news():
+    """Endpoint to trigger notifications for new news (for admin use)"""
+    try:
+        data = request.get_json()
+        news_id = data.get('news_id')
+        
+        if not news_id:
+            return jsonify({'success': False, 'message': 'News ID required'}), 400
+            
+        news = News.query.get(news_id)
+        if not news or not news.head_approved:
+            return jsonify({'success': False, 'message': 'News not found or not approved'}), 404
+            
+        title = "नई खबर: " + news.title
+        body = "द इंक न्यूज़ पर नई खबर उपलब्ध है। पढ़ने के लिए क्लिक करें।"
+        url = f"/article/{news.id}-{slugify(news.title)}"
+        
+        send_notification_to_subscribers(title, body, url)
+        return jsonify({'success': True, 'message': 'Notifications sent successfully'})
+        
+    except Exception as e:
+        print(f"Error notifying new news: {e}")
+        return jsonify({'success': False, 'message': 'Failed to send notifications'}), 500
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)

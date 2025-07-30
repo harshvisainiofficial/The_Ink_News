@@ -68,6 +68,37 @@ header {
     border-bottom: 2px solid #d32f2f;
 }
 
+/* Subscribe Button */
+.subscribe-btn {
+    background: linear-gradient(135deg, #d32f2f, #f44336);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(211, 47, 47, 0.3);
+}
+
+.subscribe-btn:hover {
+    background: linear-gradient(135deg, #b71c1c, #d32f2f);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(211, 47, 47, 0.4);
+}
+
+.subscribe-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.subscribe-btn:active {
+    transform: translateY(0);
+}
+
 /* Main Container */
 .main-container {
     display: flex;

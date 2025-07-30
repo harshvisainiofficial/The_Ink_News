@@ -5,3 +5,4 @@ flake8==6.0.0
 gunicorn
 psycopg2-binary
 unidecode
+pywebpush==1.14.0
