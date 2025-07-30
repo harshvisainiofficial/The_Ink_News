@@ -73,22 +73,23 @@ header {
     background: linear-gradient(135deg, #d32f2f, #f44336);
     color: white;
     border: none;
-    padding: 12px 24px;
-    border-radius: 25px;
-    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
-    margin: 10px 0;
+    box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+    margin: 0;
     display: inline-block;
     text-decoration: none;
     position: relative;
     overflow: hidden;
-    min-width: 200px;
+    min-width: 140px;
     text-align: center;
     word-wrap: break-word;
     line-height: 1.2;
+    vertical-align: middle;
 }
 
 .subscribe-btn:hover {
@@ -111,10 +112,10 @@ header {
 /* Mobile responsive styles for subscribe button */
 @media (max-width: 768px) {
     .subscribe-btn {
-        font-size: 14px;
-        padding: 10px 20px;
-        min-width: 180px;
-        margin: 8px 0;
+        font-size: 12px;
+        padding: 6px 12px;
+        min-width: 120px;
+        margin: 0;
     }
 }
 
