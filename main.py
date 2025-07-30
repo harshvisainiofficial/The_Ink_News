@@ -125,6 +125,22 @@ def send_notification_to_subscribers(title, body, url):
     except Exception as e:
         print(f"Error sending notifications: {e}")
 
+def auto_notify_new_news(news_id):
+    """Automatically send notification when news is approved"""
+    try:
+        news = News.query.get(news_id)
+        if news and news.head_approved:
+            # Create notification title and body
+            title = "🔥 नई खबर - The Ink News"
+            body = f"{news.title[:100]}{'...' if len(news.title) > 100 else ''}"
+            url = f"/article/{news.id}-{slugify(news.title)}"
+            
+            # Send notification to all subscribers
+            send_notification_to_subscribers(title, body, url)
+            print(f"Auto notification sent for news ID: {news_id}")
+    except Exception as e:
+        print(f"Error in auto notification for news {news_id}: {e}")
+
 @app.route('/')
 def index():
     try:
@@ -383,28 +399,39 @@ def send_test_notification():
 
 @app.route('/notify-new-news', methods=['POST'])
 def notify_new_news():
-    """Endpoint to trigger notifications for new news (for admin use)"""
+    """Endpoint for admin to trigger notification for specific news"""
     try:
         data = request.get_json()
         news_id = data.get('news_id')
         
         if not news_id:
-            return jsonify({'success': False, 'message': 'News ID required'}), 400
-            
-        news = News.query.get(news_id)
-        if not news or not news.head_approved:
-            return jsonify({'success': False, 'message': 'News not found or not approved'}), 404
-            
-        title = "नई खबर: " + news.title
-        body = "द इंक न्यूज़ पर नई खबर उपलब्ध है। पढ़ने के लिए क्लिक करें।"
-        url = f"/article/{news.id}-{slugify(news.title)}"
+            return jsonify({'success': False, 'message': 'News ID is required'}), 400
         
-        send_notification_to_subscribers(title, body, url)
-        return jsonify({'success': True, 'message': 'Notifications sent successfully'})
+        news = News.query.get(news_id)
+        if not news:
+            return jsonify({'success': False, 'message': 'News not found'}), 404
+        
+        if not news.head_approved:
+            return jsonify({'success': False, 'message': 'News is not approved'}), 400
+        
+        # Use the auto notification function
+        auto_notify_new_news(news_id)
+        
+        return jsonify({'success': True, 'message': 'Notification sent successfully'})
         
     except Exception as e:
-        print(f"Error notifying new news: {e}")
-        return jsonify({'success': False, 'message': 'Failed to send notifications'}), 500
+        print(f"Error in notify_new_news: {e}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/auto-notify/<int:news_id>', methods=['POST'])
+def auto_notify_endpoint(news_id):
+    """Endpoint that can be called automatically when news is approved"""
+    try:
+        auto_notify_new_news(news_id)
+        return jsonify({'success': True, 'message': f'Auto notification triggered for news {news_id}'})
+    except Exception as e:
+        print(f"Error in auto_notify_endpoint: {e}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     with app.app_context():

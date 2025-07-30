@@ -5,10 +5,10 @@ Run this script once to generate your keys, then update main.py with the generat
 """
 
 try:
-    from pywebpush import webpush
+    from pywebpush import generate_vapid_keys
     
     print("Generating VAPID keys for web push notifications...")
-    vapid_keys = webpush.generate_vapid_keys()
+    vapid_keys = generate_vapid_keys()
     
     print("\n" + "="*50)
     print("VAPID KEYS GENERATED SUCCESSFULLY")
