@@ -6,3 +6,5 @@ gunicorn
 psycopg2-binary
 unidecode
 pywebpush==1.14.0
+py-vapid
+cryptography

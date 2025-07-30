@@ -80,8 +80,8 @@ app.jinja_env.filters['slugify'] = slugify
 
 # VAPID Configuration (You should generate your own keys)
 # Generate keys using: webpush.generate_vapid_keys()
-VAPID_PRIVATE_KEY = "your-private-key-here"
-VAPID_PUBLIC_KEY = "BEl62iUYgUivxIkv69yViEuiBIa40HdHSWgMfHXPJeuNiJ7Ek00jVNPSyeQX-QbVFPLwqyBFWAlVfY9OCLXiAiA"
+VAPID_PRIVATE_KEY = "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgx9xZSXWNGuNigzbBaAVP+Lqtmk87p3GjtfySp+vgCcqhRANCAAR58UIahF3XcbOabVXx/P97iKVgWb1BblvV6f0DKXlG8643DByhu98AXzUL/6KJQ7ReDNxR0oFrIPIujf9GC6IU"
+VAPID_PUBLIC_KEY = "BHnxQhqEXddxs5ptVfH8_3uIpWBZvUFuW9Xp_QMpeUbzrjcMHKG73wBfNQv_oolDtF4M3FHSgWsg8i6N_0YLohQ"
 VAPID_CLAIMS = {
     "sub": "mailto:admin@theinknews.com"
 }

@@ -4,6 +4,8 @@
 Run the following command to install all required dependencies:
 ```bash
 pip install -r requirements.txt
+# If you encounter issues with VAPID key generation, also install:
+pip install py-vapid cryptography
 ```
 
 ## 2. Generate VAPID Keys
