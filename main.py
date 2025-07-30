@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
@@ -546,6 +546,16 @@ def auto_notify_endpoint(news_id):
     except Exception as e:
         print(f"Error in auto_notify_endpoint: {e}")
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/sw.js')
+def service_worker():
+    """Serve the service worker file from root path"""
+    return send_from_directory('static', 'sw.js', mimetype='application/javascript')
+
+@app.route('/favicon.ico')
+def favicon():
+    """Serve the favicon file from root path"""
+    return send_from_directory('static', 'favicon.ico', mimetype='image/x-icon')
 
 if __name__ == '__main__':
     with app.app_context():
