@@ -455,4 +455,9 @@ def auto_notify_endpoint(news_id):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        print("Database tables created successfully")
     app.run(debug=True)
+else:
+    # For production deployment, ensure tables are created
+    with app.app_context():
+        db.create_all()

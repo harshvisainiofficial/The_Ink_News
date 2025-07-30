@@ -6,6 +6,26 @@ Run the following command to install all required dependencies:
 pip install -r requirements.txt
 # If you encounter issues with VAPID key generation, also install:
 pip install py-vapid cryptography
+
+## Database Setup
+
+### For Production Deployment:
+Before running the application in production, initialize the database:
+
+```bash
+python init_db.py
+```
+
+This will create all required database tables including:
+- admin
+- news
+- content_block
+- advertisement
+- epapers
+- subscriber (for push notifications)
+
+### For Development:
+The database tables are automatically created when you run `python main.py` locally.
 ```
 
 ## 2. Generate VAPID Keys
