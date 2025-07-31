@@ -17,17 +17,9 @@
                                     <source src="{{ block.content }}" type="video/mp4">
                                     आपका ब्राउज़र वीडियो टैग को सपोर्ट नहीं करता।
                                 </video>
-                            {% elif block.block_type == 'image' %}
-                                <img src="{{ block.content }}" alt="{{ article.title }}" class="news-image">
-                            {% endif %}
-                        {% endfor %}
-                        {% for block in article.content_blocks %}
-                            {% if block.block_type == 'text' %}
-                                <p>{{ block.content | safe }}</p>
                             {% endif %}
                         {% endfor %}
                     {% endif %}
-
                 </article>
             {% endfor %}
         {% else %}

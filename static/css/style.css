@@ -288,6 +288,13 @@ header {
     text-align: justify;
 }
 
+/* Text alignment for all article paragraphs */
+.news-articles article p, .news-article article p {
+    text-align: justify;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
 /* Share Pop-up */
 .share-popup {
     display: none;
