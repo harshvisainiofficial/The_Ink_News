@@ -8,3 +8,4 @@ unidecode
 pywebpush==1.14.0
 py-vapid
 cryptography
+pytz

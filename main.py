@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
+import pytz
 from unidecode import unidecode
 import re
 import json
@@ -32,7 +33,7 @@ class News(db.Model):
     category = db.Column(db.String(100), nullable=False)
     location = db.Column(db.String(100), nullable=False)
     location_text = db.Column(db.String(200), nullable=True)
-    date_published = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_published = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(pytz.timezone('Asia/Kolkata')))
     head_approved = db.Column(db.Boolean, nullable=False, default=False)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=True)
     admin = db.relationship('Admin', backref='news')
@@ -49,14 +50,14 @@ class Advertisement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     top_banner = db.Column(db.String(200), nullable=True)
     right_sidebar = db.Column(db.String(200), nullable=True)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(pytz.timezone('Asia/Kolkata')))
     news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=True)
     news = db.relationship('News', backref='advertisements')
 
 class Epapers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     image_url = db.Column(db.String(200), nullable=False)
-    uploaded_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    uploaded_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(pytz.timezone('Asia/Kolkata')))
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=True)
     head_approved = db.Column(db.Boolean, nullable=False, default=False)
     admin = db.relationship('Admin', backref='epapers')
@@ -66,7 +67,7 @@ class Subscriber(db.Model):
     endpoint = db.Column(db.Text, nullable=False, unique=True)
     p256dh_key = db.Column(db.Text, nullable=False)
     auth_key = db.Column(db.Text, nullable=False)
-    subscribed_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    subscribed_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(pytz.timezone('Asia/Kolkata')))
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
 def slugify(value):
