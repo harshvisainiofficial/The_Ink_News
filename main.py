@@ -8,6 +8,13 @@ import re
 import json
 from pywebpush import webpush, WebPushException
 
+# Define IST timezone
+IST = pytz.timezone('Asia/Kolkata')
+
+def get_ist_now():
+    """Get current time in IST"""
+    return datetime.now(IST)
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///news_app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -33,7 +40,7 @@ class News(db.Model):
     category = db.Column(db.String(100), nullable=False)
     location = db.Column(db.String(100), nullable=False)
     location_text = db.Column(db.String(200), nullable=True)
-    date_published = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(pytz.timezone('Asia/Kolkata')))
+    date_published = db.Column(db.DateTime, nullable=False, default=get_ist_now)
     head_approved = db.Column(db.Boolean, nullable=False, default=False)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=True)
     admin = db.relationship('Admin', backref='news')
@@ -50,14 +57,14 @@ class Advertisement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     top_banner = db.Column(db.String(200), nullable=True)
     right_sidebar = db.Column(db.String(200), nullable=True)
-    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(pytz.timezone('Asia/Kolkata')))
+    updated_at = db.Column(db.DateTime, nullable=False, default=get_ist_now)
     news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=True)
     news = db.relationship('News', backref='advertisements')
 
 class Epapers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     image_url = db.Column(db.String(200), nullable=False)
-    uploaded_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(pytz.timezone('Asia/Kolkata')))
+    uploaded_at = db.Column(db.DateTime, nullable=False, default=get_ist_now)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=True)
     head_approved = db.Column(db.Boolean, nullable=False, default=False)
     admin = db.relationship('Admin', backref='epapers')
@@ -67,7 +74,7 @@ class Subscriber(db.Model):
     endpoint = db.Column(db.Text, nullable=False, unique=True)
     p256dh_key = db.Column(db.Text, nullable=False)
     auth_key = db.Column(db.Text, nullable=False)
-    subscribed_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(pytz.timezone('Asia/Kolkata')))
+    subscribed_at = db.Column(db.DateTime, nullable=False, default=get_ist_now)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
 def slugify(value):
@@ -77,7 +84,19 @@ def slugify(value):
     value = re.sub(r'[-\s]+', '-', value)   # Replace spaces/hyphens with single hyphen
     return value.strip('-').lower()
 
+def format_ist_datetime(value, format='%Y-%m-%d %H:%M'):
+    """Format datetime as IST"""
+    if value is None:
+        return ''
+    # If the datetime is naive (no timezone), assume it's already in IST
+    if value.tzinfo is None:
+        ist_time = IST.localize(value)
+    else:
+        ist_time = value.astimezone(IST)
+    return ist_time.strftime(format)
+
 app.jinja_env.filters['slugify'] = slugify
+app.jinja_env.filters['format_ist'] = format_ist_datetime
 
 # VAPID Configuration (You should generate your own keys)
 # Generate keys using: webpush.generate_vapid_keys()

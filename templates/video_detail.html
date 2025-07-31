@@ -7,7 +7,7 @@
     <a href="{{ url_for('video') }}" class="back-btn" style="display: inline-block; padding: 10px 20px; background: #6c757d; color: white; border-radius: 5px; text-decoration: none;">← वापस वीडियो पर</a>
     <h2>{{ news.title | safe }}</h2>
     <div class="news-meta">
-        <p>श्रेणी: {{ news.category.replace('-', ' ').title() }} | स्थान: {{ news.location }} {% if news.location_text %} ({{ news.location_text }}) {% endif %} | प्रकाशित: {{ news.date_published.strftime('%Y-%m-%d %H:%M') }}</p>
+        <p>श्रेणी: {{ news.category.replace('-', ' ').title() }} | स्थान: {{ news.location }} {% if news.location_text %} ({{ news.location_text }}) {% endif %} | प्रकाशित: {{ news.date_published|format_ist }}</p>
     </div>
     <div class="video-gallery">
         {% for block in blocks|sort(attribute='order_index') %}
